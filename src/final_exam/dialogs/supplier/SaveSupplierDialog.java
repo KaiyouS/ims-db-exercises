@@ -2,29 +2,21 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JDialog.java to edit this template
  */
-package prefinals_exercise3.dialogs.supplier;
+package final_exam.dialogs.supplier;
 
-import java.awt.Color;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
 
-import prefinals_exercise3.SQLConfig;
+import final_exam.utils.SQLConfig;
 
-/**
- * Edit dialog for editing categories.
- */
-public class EditSupplierDialog extends javax.swing.JDialog {
-    private int id;
+public class SaveSupplierDialog extends javax.swing.JDialog {
 
-    public EditSupplierDialog(java.awt.Frame parent, boolean modal, int id, String... values) {
+    public SaveSupplierDialog(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
-        this.id = id;
         initComponents();
-        supplierNameField.setText(values[0]);
-        contactInfoField.setText(values[1]);
     }
 
     /**
@@ -37,18 +29,24 @@ public class EditSupplierDialog extends javax.swing.JDialog {
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
 
-        Container = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
-        supplierNameField = new javax.swing.JTextField();
-        cancelButton = new javax.swing.JButton();
-        saveChangesButton = new javax.swing.JButton();
-        offsetR = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
+        Container = new javax.swing.JPanel();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        supplierNameField = new javax.swing.JTextField();
+        cancelButton1 = new javax.swing.JButton();
+        saveNewButton = new javax.swing.JButton();
+        offsetR = new javax.swing.JPanel();
         contactInfoField = new javax.swing.JTextField();
+        jLabel6 = new javax.swing.JLabel();
+
+        jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel3.setForeground(new java.awt.Color(0, 153, 153));
+        jLabel3.setText("Category Name:");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setMaximumSize(new java.awt.Dimension(410, 460));
+        setMinimumSize(new java.awt.Dimension(410, 460));
         setResizable(false);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
@@ -58,26 +56,26 @@ public class EditSupplierDialog extends javax.swing.JDialog {
         Container.setPreferredSize(new java.awt.Dimension(410, 460));
         Container.setLayout(new java.awt.GridBagLayout());
 
-        jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 36)); // NOI18N
-        jLabel1.setForeground(new java.awt.Color(0, 153, 153));
-        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel1.setText("SUPPLIER");
-        jLabel1.setMaximumSize(new java.awt.Dimension(410, 48));
-        jLabel1.setMinimumSize(new java.awt.Dimension(410, 48));
-        jLabel1.setPreferredSize(new java.awt.Dimension(410, 48));
+        jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 36)); // NOI18N
+        jLabel4.setForeground(new java.awt.Color(0, 153, 153));
+        jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel4.setText("SUPPLIER");
+        jLabel4.setMaximumSize(new java.awt.Dimension(410, 48));
+        jLabel4.setMinimumSize(new java.awt.Dimension(410, 48));
+        jLabel4.setPreferredSize(new java.awt.Dimension(410, 48));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.insets = new java.awt.Insets(50, 0, 50, 0);
-        Container.add(jLabel1, gridBagConstraints);
+        Container.add(jLabel4, gridBagConstraints);
 
-        jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        jLabel2.setForeground(new java.awt.Color(0, 153, 153));
-        jLabel2.setText("New Supplier Name:");
+        jLabel5.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel5.setForeground(new java.awt.Color(0, 153, 153));
+        jLabel5.setText("Supplier Name:");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 50, 0, 0);
-        Container.add(jLabel2, gridBagConstraints);
+        Container.add(jLabel5, gridBagConstraints);
 
         supplierNameField.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         supplierNameField.setForeground(new java.awt.Color(51, 51, 51));
@@ -95,17 +93,17 @@ public class EditSupplierDialog extends javax.swing.JDialog {
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
         Container.add(supplierNameField, gridBagConstraints);
 
-        cancelButton.setBackground(new java.awt.Color(230, 230, 230));
-        cancelButton.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        cancelButton.setForeground(new java.awt.Color(51, 51, 51));
-        cancelButton.setText("Cancel");
-        cancelButton.setBorderPainted(false);
-        cancelButton.setMaximumSize(new java.awt.Dimension(160, 32));
-        cancelButton.setMinimumSize(new java.awt.Dimension(160, 32));
-        cancelButton.setPreferredSize(new java.awt.Dimension(160, 32));
-        cancelButton.addActionListener(new java.awt.event.ActionListener() {
+        cancelButton1.setBackground(new java.awt.Color(230, 230, 230));
+        cancelButton1.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        cancelButton1.setForeground(new java.awt.Color(51, 51, 51));
+        cancelButton1.setText("Cancel");
+        cancelButton1.setBorderPainted(false);
+        cancelButton1.setMaximumSize(new java.awt.Dimension(160, 32));
+        cancelButton1.setMinimumSize(new java.awt.Dimension(160, 32));
+        cancelButton1.setPreferredSize(new java.awt.Dimension(160, 32));
+        cancelButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cancelButtonActionPerformed(evt);
+                cancelButton1ActionPerformed(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -113,19 +111,19 @@ public class EditSupplierDialog extends javax.swing.JDialog {
         gridBagConstraints.gridy = 6;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(80, 42, 80, 5);
-        Container.add(cancelButton, gridBagConstraints);
+        Container.add(cancelButton1, gridBagConstraints);
 
-        saveChangesButton.setBackground(new java.awt.Color(0, 153, 153));
-        saveChangesButton.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        saveChangesButton.setForeground(new java.awt.Color(255, 255, 255));
-        saveChangesButton.setText("Save Changes");
-        saveChangesButton.setBorderPainted(false);
-        saveChangesButton.setMaximumSize(new java.awt.Dimension(160, 32));
-        saveChangesButton.setMinimumSize(new java.awt.Dimension(160, 32));
-        saveChangesButton.setPreferredSize(new java.awt.Dimension(160, 32));
-        saveChangesButton.addActionListener(new java.awt.event.ActionListener() {
+        saveNewButton.setBackground(new java.awt.Color(0, 153, 153));
+        saveNewButton.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        saveNewButton.setForeground(new java.awt.Color(255, 255, 255));
+        saveNewButton.setText("Save New");
+        saveNewButton.setBorderPainted(false);
+        saveNewButton.setMaximumSize(new java.awt.Dimension(160, 32));
+        saveNewButton.setMinimumSize(new java.awt.Dimension(160, 32));
+        saveNewButton.setPreferredSize(new java.awt.Dimension(160, 32));
+        saveNewButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                saveChangesButtonActionPerformed(evt);
+                saveNewButtonActionPerformed(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -133,9 +131,7 @@ public class EditSupplierDialog extends javax.swing.JDialog {
         gridBagConstraints.gridy = 6;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
         gridBagConstraints.insets = new java.awt.Insets(80, 5, 80, 42);
-        Container.add(saveChangesButton, gridBagConstraints);
-
-        offsetR.setBackground(new Color(0,0,0,0));
+        Container.add(saveNewButton, gridBagConstraints);
 
         javax.swing.GroupLayout offsetRLayout = new javax.swing.GroupLayout(offsetR);
         offsetR.setLayout(offsetRLayout);
@@ -149,20 +145,10 @@ public class EditSupplierDialog extends javax.swing.JDialog {
         );
 
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 20);
         Container.add(offsetR, gridBagConstraints);
-
-        jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        jLabel3.setForeground(new java.awt.Color(0, 153, 153));
-        jLabel3.setText("New Contact Information:");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(25, 50, 0, 0);
-        Container.add(jLabel3, gridBagConstraints);
 
         contactInfoField.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         contactInfoField.setForeground(new java.awt.Color(51, 51, 51));
@@ -180,7 +166,17 @@ public class EditSupplierDialog extends javax.swing.JDialog {
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
         Container.add(contactInfoField, gridBagConstraints);
 
-        getContentPane().add(Container, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 410, 460));
+        jLabel6.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel6.setForeground(new java.awt.Color(0, 153, 153));
+        jLabel6.setText("Contact Information:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(25, 50, 0, 0);
+        Container.add(jLabel6, gridBagConstraints);
+
+        getContentPane().add(Container, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 410, -1));
 
         pack();
         setLocationRelativeTo(null);
@@ -190,30 +186,29 @@ public class EditSupplierDialog extends javax.swing.JDialog {
         // TODO add your handling code here:
     }//GEN-LAST:event_supplierNameFieldActionPerformed
 
-    private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
+    private void cancelButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButton1ActionPerformed
         dispose();
-    }//GEN-LAST:event_cancelButtonActionPerformed
+    }//GEN-LAST:event_cancelButton1ActionPerformed
 
-    private void saveChangesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveChangesButtonActionPerformed
-        String newSupplierName = supplierNameField.getText();
-        String newContactInfo = contactInfoField.getText();
+    private void saveNewButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveNewButtonActionPerformed
+        String supplierName = supplierNameField.getText();
+        String contactInfo = contactInfoField.getText();
         
-        if (newSupplierName.isEmpty() || newContactInfo.isEmpty()) {
+        if (supplierName.isEmpty() || contactInfo.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Please fill out all the necessary fields.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
         
         try (Connection con = getConnection();
-             PreparedStatement pstmt = con.prepareStatement("UPDATE Suppliers SET category_name = ?, contact_info = ? WHERE supplier_id = ?")) {
-            pstmt.setString(1, newSupplierName);
-            pstmt.setString(2, newContactInfo);
-            pstmt.setInt(3, id);
+            PreparedStatement pstmt = con.prepareStatement("INSERT INTO Suppliers (supplier_name, contact_info) VALUES (?, ?)")) {
+            pstmt.setString(1, supplierName);
+            pstmt.setString(2, contactInfo);
             pstmt.executeUpdate();
             dispose();
         } catch (SQLException | ClassNotFoundException e) {
             showError(e);
         }
-    }//GEN-LAST:event_saveChangesButtonActionPerformed
+    }//GEN-LAST:event_saveNewButtonActionPerformed
 
     private void contactInfoFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_contactInfoFieldActionPerformed
         // TODO add your handling code here:
@@ -250,13 +245,13 @@ public class EditSupplierDialog extends javax.swing.JDialog {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(EditSupplierDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(SaveSupplierDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(EditSupplierDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(SaveSupplierDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(EditSupplierDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(SaveSupplierDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(EditSupplierDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(SaveSupplierDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
         //</editor-fold>
@@ -264,7 +259,7 @@ public class EditSupplierDialog extends javax.swing.JDialog {
         /* Create and display the dialog */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                EditSupplierDialog dialog = new EditSupplierDialog(new javax.swing.JFrame(), true, 1, "v0");
+                SaveSupplierDialog dialog = new SaveSupplierDialog(new javax.swing.JFrame(), true);
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
                     public void windowClosing(java.awt.event.WindowEvent e) {
@@ -278,13 +273,14 @@ public class EditSupplierDialog extends javax.swing.JDialog {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel Container;
-    private javax.swing.JButton cancelButton;
+    private javax.swing.JButton cancelButton1;
     private javax.swing.JTextField contactInfoField;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel offsetR;
-    private javax.swing.JButton saveChangesButton;
+    private javax.swing.JButton saveNewButton;
     private javax.swing.JTextField supplierNameField;
     // End of variables declaration//GEN-END:variables
 }

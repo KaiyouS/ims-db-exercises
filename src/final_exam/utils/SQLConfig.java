@@ -1,4 +1,4 @@
-package prefinals_exercise3;
+package final_exam.utils;
 
 /**
  *

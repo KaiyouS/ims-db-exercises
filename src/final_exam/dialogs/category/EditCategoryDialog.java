@@ -2,28 +2,30 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JDialog.java to edit this template
  */
-package prefinals_exercise3.dialogs.item;
+package final_exam.dialogs.category;
 
+import java.awt.Color;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
-import javax.swing.table.DefaultTableModel;
 
-import prefinals_exercise3.SQLConfig;
+import final_exam.utils.SQLConfig;
 
 /**
- *
- * @author Kaiyou
+ * Edit dialog for editing categories.
  */
-public class DeleteItemDialog extends javax.swing.JDialog {
+public class EditCategoryDialog extends javax.swing.JDialog {
     private int id;
-
-    public DeleteItemDialog(java.awt.Frame parent, boolean modal, int id) {
+    /**
+     * Creates new form EditCategoryDialog
+     */
+    public EditCategoryDialog(java.awt.Frame parent, boolean modal, int id, String categoryName) {
         super(parent, modal);
         this.id = id;
         initComponents();
+        categoryNameField.setText(categoryName);
     }
 
     /**
@@ -38,32 +40,58 @@ public class DeleteItemDialog extends javax.swing.JDialog {
 
         Container = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        categoryNameField = new javax.swing.JTextField();
         cancelButton = new javax.swing.JButton();
-        confirmDeleteButton = new javax.swing.JButton();
-        jLabel3 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
+        saveChangesButton = new javax.swing.JButton();
         offsetR = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setMinimumSize(new java.awt.Dimension(410, 360));
+        setResizable(false);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         Container.setBackground(new java.awt.Color(255, 255, 255));
-        Container.setMaximumSize(new java.awt.Dimension(410, 360));
-        Container.setMinimumSize(new java.awt.Dimension(410, 360));
-        Container.setPreferredSize(new java.awt.Dimension(410, 360));
+        Container.setMaximumSize(new java.awt.Dimension(410, 370));
+        Container.setMinimumSize(new java.awt.Dimension(410, 370));
+        Container.setPreferredSize(new java.awt.Dimension(410, 370));
         Container.setLayout(new java.awt.GridBagLayout());
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 36)); // NOI18N
-        jLabel1.setForeground(new java.awt.Color(250, 63, 25));
+        jLabel1.setForeground(new java.awt.Color(0, 153, 153));
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel1.setText("ITEM");
+        jLabel1.setText("CATEGORY");
         jLabel1.setMaximumSize(new java.awt.Dimension(410, 48));
         jLabel1.setMinimumSize(new java.awt.Dimension(410, 48));
         jLabel1.setPreferredSize(new java.awt.Dimension(410, 48));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.insets = new java.awt.Insets(50, 0, 50, 0);
         Container.add(jLabel1, gridBagConstraints);
+
+        jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel2.setForeground(new java.awt.Color(0, 153, 153));
+        jLabel2.setText("New Category Name:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 50, 0, 0);
+        Container.add(jLabel2, gridBagConstraints);
+
+        categoryNameField.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        categoryNameField.setForeground(new java.awt.Color(51, 51, 51));
+        categoryNameField.setMaximumSize(new java.awt.Dimension(320, 32));
+        categoryNameField.setMinimumSize(new java.awt.Dimension(320, 32));
+        categoryNameField.setPreferredSize(new java.awt.Dimension(320, 32));
+        categoryNameField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                categoryNameFieldActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
+        Container.add(categoryNameField, gridBagConstraints);
 
         cancelButton.setBackground(new java.awt.Color(230, 230, 230));
         cancelButton.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
@@ -80,48 +108,32 @@ public class DeleteItemDialog extends javax.swing.JDialog {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridy = 4;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(80, 42, 80, 5);
         Container.add(cancelButton, gridBagConstraints);
 
-        confirmDeleteButton.setBackground(new java.awt.Color(250, 63, 25));
-        confirmDeleteButton.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        confirmDeleteButton.setForeground(new java.awt.Color(255, 255, 255));
-        confirmDeleteButton.setText("Confirm Delete");
-        confirmDeleteButton.setBorderPainted(false);
-        confirmDeleteButton.setMaximumSize(new java.awt.Dimension(160, 32));
-        confirmDeleteButton.setMinimumSize(new java.awt.Dimension(160, 32));
-        confirmDeleteButton.setPreferredSize(new java.awt.Dimension(160, 32));
-        confirmDeleteButton.addActionListener(new java.awt.event.ActionListener() {
+        saveChangesButton.setBackground(new java.awt.Color(0, 153, 153));
+        saveChangesButton.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        saveChangesButton.setForeground(new java.awt.Color(255, 255, 255));
+        saveChangesButton.setText("Save Changes");
+        saveChangesButton.setBorderPainted(false);
+        saveChangesButton.setMaximumSize(new java.awt.Dimension(160, 32));
+        saveChangesButton.setMinimumSize(new java.awt.Dimension(160, 32));
+        saveChangesButton.setPreferredSize(new java.awt.Dimension(160, 32));
+        saveChangesButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                confirmDeleteButtonActionPerformed(evt);
+                saveChangesButtonActionPerformed(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridy = 4;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
         gridBagConstraints.insets = new java.awt.Insets(80, 5, 80, 42);
-        Container.add(confirmDeleteButton, gridBagConstraints);
+        Container.add(saveChangesButton, gridBagConstraints);
 
-        jLabel3.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        jLabel3.setForeground(new java.awt.Color(51, 51, 51));
-        jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel3.setText("This can't be undone.");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
-        Container.add(jLabel3, gridBagConstraints);
-
-        jLabel4.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        jLabel4.setForeground(new java.awt.Color(51, 51, 51));
-        jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel4.setText("Confirm delete?");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
-        Container.add(jLabel4, gridBagConstraints);
+        offsetR.setBackground(new Color(0,0,0,0));
 
         javax.swing.GroupLayout offsetRLayout = new javax.swing.GroupLayout(offsetR);
         offsetR.setLayout(offsetRLayout);
@@ -140,38 +152,38 @@ public class DeleteItemDialog extends javax.swing.JDialog {
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 20);
         Container.add(offsetR, gridBagConstraints);
 
-        getContentPane().add(Container, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 410, 360));
+        getContentPane().add(Container, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 410, 370));
 
         pack();
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
+    private void categoryNameFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_categoryNameFieldActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_categoryNameFieldActionPerformed
+
     private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
         dispose();
     }//GEN-LAST:event_cancelButtonActionPerformed
 
-    private void confirmDeleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_confirmDeleteButtonActionPerformed
-        String deleteTransactionsQuery = "DELETE FROM Transactions WHERE item_id = ?";
-        String deleteItemQuery = "DELETE FROM Items WHERE item_id = ?";
-
-        try (Connection con = getConnection()) {
-            // Delete related transactions
-            try (PreparedStatement deleteTransactionsStmt = con.prepareStatement(deleteTransactionsQuery)) {
-                deleteTransactionsStmt.setInt(1, id);
-                deleteTransactionsStmt.executeUpdate();
-            }
-
-            // Delete the item
-            try (PreparedStatement deleteItemStmt = con.prepareStatement(deleteItemQuery)) {
-                deleteItemStmt.setInt(1, id);
-                deleteItemStmt.executeUpdate();
-            }
-            JOptionPane.showMessageDialog(this, "Item deleted successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
+    private void saveChangesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveChangesButtonActionPerformed
+        String newCategoryName = categoryNameField.getText();
+        
+        if (newCategoryName.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please fill out all the necessary fields.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        try (Connection con = getConnection();
+             PreparedStatement pstmt = con.prepareStatement("UPDATE Categories SET category_name = ? WHERE category_id = ?")) {
+            pstmt.setString(1, newCategoryName);
+            pstmt.setInt(2, id);
+            pstmt.executeUpdate();
             dispose();
-        } catch (Exception e) {
+        } catch (SQLException | ClassNotFoundException e) {
             showError(e);
         }
-    }//GEN-LAST:event_confirmDeleteButtonActionPerformed
+    }//GEN-LAST:event_saveChangesButtonActionPerformed
 
     private Connection getConnection() throws SQLException, ClassNotFoundException {
         SQLConfig sql = new SQLConfig();
@@ -204,27 +216,20 @@ public class DeleteItemDialog extends javax.swing.JDialog {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(DeleteItemDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(EditCategoryDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(DeleteItemDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(EditCategoryDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(DeleteItemDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(EditCategoryDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(DeleteItemDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(EditCategoryDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
         //</editor-fold>
 
         /* Create and display the dialog */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                DeleteItemDialog dialog = new DeleteItemDialog(new javax.swing.JFrame(), true, 1);
+                EditCategoryDialog dialog = new EditCategoryDialog(new javax.swing.JFrame(), true, 1, "Sample Category");
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
                     public void windowClosing(java.awt.event.WindowEvent e) {
@@ -239,10 +244,10 @@ public class DeleteItemDialog extends javax.swing.JDialog {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel Container;
     private javax.swing.JButton cancelButton;
-    private javax.swing.JButton confirmDeleteButton;
+    private javax.swing.JTextField categoryNameField;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel offsetR;
+    private javax.swing.JButton saveChangesButton;
     // End of variables declaration//GEN-END:variables
 }

@@ -104,6 +104,18 @@ public class PanelAction extends javax.swing.JPanel {
         return viewButton;
     }
 
+    public void showEditButton(boolean show) {
+        editButton.setVisible(show);
+    }
+
+    public void showDeleteButton(boolean show) {
+        deleteButton.setVisible(show);
+    }
+
+    public void showViewButton(boolean show) {
+        viewButton.setVisible(show);
+    }
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton deleteButton;
     private javax.swing.JButton editButton;

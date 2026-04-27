@@ -2,40 +2,88 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JDialog.java to edit this template
  */
-package prefinals_exercise3.dialogs.item;
+package final_exam.dialogs.transaction;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.List;
 import java.sql.SQLException;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JOptionPane;
 
-import prefinals_exercise3.SQLConfig;
+import final_exam.utils.SQLConfig;
 
-public class SaveItemDialog extends javax.swing.JDialog {
+public class SaveTransactionDialog extends javax.swing.JDialog {
 
-    public SaveItemDialog(java.awt.Frame parent, boolean modal) {
+    public SaveTransactionDialog(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
-        loadCategories();
+        loadItems();
+        loadTransactionTypes();
     }
     
-    public void loadCategories() {
+    private void loadItems() {
         try (Connection con = getConnection();
              Statement stmt = con.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT category_name FROM Categories")) {
+             ResultSet rs = stmt.executeQuery("SELECT item_id, item_name FROM Items")) {
 
             DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
             while (rs.next()) {
-                model.addElement(rs.getString("category_name"));
+                model.addElement(rs.getString("item_name"));
             }
-            cmbCategory.setModel(model);
+            cmbItem.setModel(model);
         } catch (SQLException | ClassNotFoundException e) {
             showError(e);
         }
+    }
+    
+    private void loadTransactionTypes() {
+//        List<String> transactionTypes = Arrays.asList("Sale", "Purchase", "Return", "Restock");
+        List<String> transactionTypes = Arrays.asList("Stock in", "Stock out");
+        DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>(transactionTypes.toArray(new String[0]));
+        cmbTransactionType.setModel(model);
+    }
+    
+    private boolean updateItemQuantity(String itemName, int value, String type) {
+        int oldValue = 0;
+        try (Connection con = getConnection();
+             PreparedStatement selectStmt = con.prepareStatement("SELECT quantity_on_hand FROM Items WHERE item_name = ?")) {
+            selectStmt.setString(1, itemName);
+            ResultSet rs = selectStmt.executeQuery();
+            
+            if (rs.next()) {
+                oldValue = rs.getInt("quantity_on_hand");
+            }
+            
+            int newValue = 0;
+            if (type.equalsIgnoreCase("Stock in")) {
+                newValue = oldValue + value;
+            } else if (type.equalsIgnoreCase("Stock out")) {
+                newValue = oldValue - value;
+                if (newValue < 0) {
+                    return false;
+                }
+            }
+            
+            // Update the new quantity in the database
+            try (PreparedStatement updateStmt = con.prepareStatement("UPDATE Items SET quantity_on_hand = ? WHERE item_name = ?")) {
+                updateStmt.setInt(1, newValue);
+                updateStmt.setString(2, itemName);
+                updateStmt.executeUpdate();
+            }
+            
+        } catch (SQLException | ClassNotFoundException e) {
+            showError(e);
+            return false;
+        }
+        
+        return true;
     }
 
     /**
@@ -52,19 +100,17 @@ public class SaveItemDialog extends javax.swing.JDialog {
         Container = new javax.swing.JPanel();
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
-        itemNameField = new javax.swing.JTextField();
         cancelButton1 = new javax.swing.JButton();
         saveNewButton = new javax.swing.JButton();
         offsetR = new javax.swing.JPanel();
         jLabel6 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        descriptionField = new javax.swing.JTextArea();
-        cmbCategory = new javax.swing.JComboBox<>();
-        unitPriceField = new javax.swing.JTextField();
-        reorderLevelField = new javax.swing.JTextField();
+        notesField = new javax.swing.JTextArea();
+        cmbItem = new javax.swing.JComboBox<>();
+        quantityField = new javax.swing.JTextField();
         jLabel7 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
-        jLabel10 = new javax.swing.JLabel();
+        cmbTransactionType = new javax.swing.JComboBox<>();
 
         jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel3.setForeground(new java.awt.Color(0, 153, 153));
@@ -84,7 +130,7 @@ public class SaveItemDialog extends javax.swing.JDialog {
         jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 36)); // NOI18N
         jLabel4.setForeground(new java.awt.Color(0, 153, 153));
         jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel4.setText("ITEM");
+        jLabel4.setText("TRANSACTION");
         jLabel4.setMaximumSize(new java.awt.Dimension(410, 48));
         jLabel4.setMinimumSize(new java.awt.Dimension(410, 48));
         jLabel4.setPreferredSize(new java.awt.Dimension(410, 48));
@@ -94,29 +140,13 @@ public class SaveItemDialog extends javax.swing.JDialog {
 
         jLabel5.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel5.setForeground(new java.awt.Color(0, 153, 153));
-        jLabel5.setText("Item Name:");
+        jLabel5.setText("Item:");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 50, 0, 0);
         Container.add(jLabel5, gridBagConstraints);
-
-        itemNameField.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        itemNameField.setForeground(new java.awt.Color(51, 51, 51));
-        itemNameField.setMaximumSize(new java.awt.Dimension(320, 32));
-        itemNameField.setMinimumSize(new java.awt.Dimension(320, 32));
-        itemNameField.setPreferredSize(new java.awt.Dimension(320, 32));
-        itemNameField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                itemNameFieldActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 3;
-        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
-        Container.add(itemNameField, gridBagConstraints);
 
         cancelButton1.setBackground(new java.awt.Color(230, 230, 230));
         cancelButton1.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
@@ -177,7 +207,7 @@ public class SaveItemDialog extends javax.swing.JDialog {
 
         jLabel6.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel6.setForeground(new java.awt.Color(0, 153, 153));
-        jLabel6.setText("Category:");
+        jLabel6.setText("Transaction Type:");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 6;
@@ -189,71 +219,54 @@ public class SaveItemDialog extends javax.swing.JDialog {
         jScrollPane1.setMinimumSize(new java.awt.Dimension(320, 86));
         jScrollPane1.setPreferredSize(new java.awt.Dimension(320, 86));
 
-        descriptionField.setColumns(20);
-        descriptionField.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        descriptionField.setLineWrap(true);
-        descriptionField.setRows(5);
-        descriptionField.setTabSize(20);
-        descriptionField.setWrapStyleWord(true);
-        jScrollPane1.setViewportView(descriptionField);
+        notesField.setColumns(20);
+        notesField.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        notesField.setLineWrap(true);
+        notesField.setRows(5);
+        notesField.setTabSize(20);
+        notesField.setWrapStyleWord(true);
+        jScrollPane1.setViewportView(notesField);
 
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 5;
-        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
-        Container.add(jScrollPane1, gridBagConstraints);
-
-        cmbCategory.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        cmbCategory.setMaximumSize(new java.awt.Dimension(320, 32));
-        cmbCategory.setMinimumSize(new java.awt.Dimension(320, 32));
-        cmbCategory.setPreferredSize(new java.awt.Dimension(320, 32));
-        cmbCategory.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cmbCategoryActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 7;
-        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
-        Container.add(cmbCategory, gridBagConstraints);
-
-        unitPriceField.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        unitPriceField.setForeground(new java.awt.Color(51, 51, 51));
-        unitPriceField.setMaximumSize(new java.awt.Dimension(320, 32));
-        unitPriceField.setMinimumSize(new java.awt.Dimension(320, 32));
-        unitPriceField.setPreferredSize(new java.awt.Dimension(320, 32));
-        unitPriceField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                unitPriceFieldActionPerformed(evt);
-            }
-        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 9;
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
-        Container.add(unitPriceField, gridBagConstraints);
+        Container.add(jScrollPane1, gridBagConstraints);
 
-        reorderLevelField.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        reorderLevelField.setForeground(new java.awt.Color(51, 51, 51));
-        reorderLevelField.setText("0");
-        reorderLevelField.setMaximumSize(new java.awt.Dimension(320, 32));
-        reorderLevelField.setMinimumSize(new java.awt.Dimension(320, 32));
-        reorderLevelField.setPreferredSize(new java.awt.Dimension(320, 32));
-        reorderLevelField.addActionListener(new java.awt.event.ActionListener() {
+        cmbItem.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        cmbItem.setMaximumSize(new java.awt.Dimension(320, 32));
+        cmbItem.setMinimumSize(new java.awt.Dimension(320, 32));
+        cmbItem.setPreferredSize(new java.awt.Dimension(320, 32));
+        cmbItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                reorderLevelFieldActionPerformed(evt);
+                cmbItemActionPerformed(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 13;
+        gridBagConstraints.gridy = 3;
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
-        Container.add(reorderLevelField, gridBagConstraints);
+        Container.add(cmbItem, gridBagConstraints);
+
+        quantityField.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        quantityField.setForeground(new java.awt.Color(51, 51, 51));
+        quantityField.setMaximumSize(new java.awt.Dimension(320, 32));
+        quantityField.setMinimumSize(new java.awt.Dimension(320, 32));
+        quantityField.setPreferredSize(new java.awt.Dimension(320, 32));
+        quantityField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                quantityFieldActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
+        Container.add(quantityField, gridBagConstraints);
 
         jLabel7.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel7.setForeground(new java.awt.Color(0, 153, 153));
-        jLabel7.setText("Description:");
+        jLabel7.setText("Quantity:");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 4;
@@ -263,7 +276,7 @@ public class SaveItemDialog extends javax.swing.JDialog {
 
         jLabel8.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel8.setForeground(new java.awt.Color(0, 153, 153));
-        jLabel8.setText("Unit Price:");
+        jLabel8.setText("Notes:");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 8;
@@ -271,15 +284,20 @@ public class SaveItemDialog extends javax.swing.JDialog {
         gridBagConstraints.insets = new java.awt.Insets(25, 50, 0, 0);
         Container.add(jLabel8, gridBagConstraints);
 
-        jLabel10.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        jLabel10.setForeground(new java.awt.Color(0, 153, 153));
-        jLabel10.setText("Reorder Level:");
+        cmbTransactionType.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        cmbTransactionType.setMaximumSize(new java.awt.Dimension(320, 32));
+        cmbTransactionType.setMinimumSize(new java.awt.Dimension(320, 32));
+        cmbTransactionType.setPreferredSize(new java.awt.Dimension(320, 32));
+        cmbTransactionType.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cmbTransactionTypeActionPerformed(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 12;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(25, 50, 0, 0);
-        Container.add(jLabel10, gridBagConstraints);
+        gridBagConstraints.gridy = 7;
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
+        Container.add(cmbTransactionType, gridBagConstraints);
 
         getContentPane().add(Container, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 410, 810));
 
@@ -287,65 +305,70 @@ public class SaveItemDialog extends javax.swing.JDialog {
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
-    private void itemNameFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemNameFieldActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_itemNameFieldActionPerformed
-
     private void cancelButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButton1ActionPerformed
         dispose();
     }//GEN-LAST:event_cancelButton1ActionPerformed
 
     private void saveNewButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveNewButtonActionPerformed
-        String itemName = itemNameField.getText().trim();
-        String description = descriptionField.getText().trim();
-        String category = (String) cmbCategory.getSelectedItem();
-        String unitPriceStr = unitPriceField.getText().trim();
-        String reorderLevelStr = reorderLevelField.getText().trim();
+        String selectedItem = (String) cmbItem.getSelectedItem();
+        String quantityStr = quantityField.getText().trim();
+        String transactionType = (String) cmbTransactionType.getSelectedItem();
+        String notes = notesField.getText().trim();
+        LocalDateTime now = LocalDateTime.now();
+        String formattedDate = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
-        if (itemName.isEmpty() || description.isEmpty() || category == null || unitPriceStr.isEmpty() || reorderLevelStr.isEmpty()) {
+        if (selectedItem == null || quantityStr.isEmpty() || transactionType == null) {
             JOptionPane.showMessageDialog(this, "Please fill out all the necessary fields.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         try {
-            double unitPrice = Double.parseDouble(unitPriceStr);
-            int reorderLevel = Integer.parseInt(reorderLevelStr);
+            int quantity = Integer.parseInt(quantityStr);
 
-            try (Connection con = getConnection();
-                 PreparedStatement pstmt = con.prepareStatement("INSERT INTO Items (item_name, description, category_id, unit_price, quantity_on_hand, reorder_level) VALUES (?, ?, (SELECT category_id FROM Categories WHERE category_name = ?), ?, ?, ?)")) {
-                pstmt.setString(1, itemName);
-                pstmt.setString(2, description);
-                pstmt.setString(3, category);
-                pstmt.setDouble(4, unitPrice);
-                pstmt.setInt(5, 0);
-                pstmt.setInt(6, reorderLevel);
-                pstmt.executeUpdate();
+            try (Connection con = getConnection()) {
+                con.setAutoCommit(false);
+
+                if (!updateItemQuantity(selectedItem, quantity, transactionType)) {
+                    JOptionPane.showMessageDialog(this, "Insufficient stock for the transaction.", "Error", JOptionPane.ERROR_MESSAGE);
+                    con.rollback();
+                    return;
+                }
+
+                try (PreparedStatement pstmt = con.prepareStatement("INSERT INTO Transactions (item_id, transaction_date, quantity, transaction_type, notes) VALUES ((SELECT item_id FROM Items WHERE item_name = ?), ?, ?, ?, ?)")) {
+                    pstmt.setString(1, selectedItem);
+                    pstmt.setString(2, formattedDate);
+                    pstmt.setInt(3, quantity);
+                    pstmt.setString(4, transactionType);
+                    pstmt.setString(5, notes);
+                    pstmt.executeUpdate();
+                }
+
+                con.commit(); // Commit transaction
                 dispose();
             }
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Please enter valid numbers for unit price and reorder level.", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Please enter a valid number for quantity.", "Error", JOptionPane.ERROR_MESSAGE);
         } catch (SQLException | ClassNotFoundException e) {
             showError(e);
         }
     }//GEN-LAST:event_saveNewButtonActionPerformed
 
-    private void unitPriceFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_unitPriceFieldActionPerformed
+    private void quantityFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_quantityFieldActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_unitPriceFieldActionPerformed
+    }//GEN-LAST:event_quantityFieldActionPerformed
 
-    private void reorderLevelFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_reorderLevelFieldActionPerformed
+    private void cmbItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbItemActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_reorderLevelFieldActionPerformed
+    }//GEN-LAST:event_cmbItemActionPerformed
 
-    private void cmbCategoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbCategoryActionPerformed
+    private void cmbTransactionTypeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbTransactionTypeActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_cmbCategoryActionPerformed
+    }//GEN-LAST:event_cmbTransactionTypeActionPerformed
 
     private Connection getConnection() throws SQLException, ClassNotFoundException {
-        SQLConfig sql = new SQLConfig();
-        String DB_URL = sql.getDbUrl();
-        String DB_USER = sql.getDbUser();
-        String DB_PASSWORD = sql.getDbPassword();
+        String DB_URL = SQLConfig.getDbUrl();
+        String DB_USER = SQLConfig.getDbUser();
+        String DB_PASSWORD = SQLConfig.getDbPassword();
         Class.forName("com.mysql.cj.jdbc.Driver");
         return DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
     }
@@ -372,14 +395,18 @@ public class SaveItemDialog extends javax.swing.JDialog {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(SaveItemDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(SaveTransactionDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(SaveItemDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(SaveTransactionDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(SaveItemDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(SaveTransactionDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(SaveItemDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(SaveTransactionDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
         //</editor-fold>
         //</editor-fold>
         //</editor-fold>
@@ -388,7 +415,7 @@ public class SaveItemDialog extends javax.swing.JDialog {
         /* Create and display the dialog */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                SaveItemDialog dialog = new SaveItemDialog(new javax.swing.JFrame(), true);
+                SaveTransactionDialog dialog = new SaveTransactionDialog(new javax.swing.JFrame(), true);
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
                     public void windowClosing(java.awt.event.WindowEvent e) {
@@ -403,10 +430,8 @@ public class SaveItemDialog extends javax.swing.JDialog {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel Container;
     private javax.swing.JButton cancelButton1;
-    private javax.swing.JComboBox<String> cmbCategory;
-    private javax.swing.JTextArea descriptionField;
-    private javax.swing.JTextField itemNameField;
-    private javax.swing.JLabel jLabel10;
+    private javax.swing.JComboBox<String> cmbItem;
+    private javax.swing.JComboBox<String> cmbTransactionType;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
@@ -414,9 +439,9 @@ public class SaveItemDialog extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTextArea notesField;
     private javax.swing.JPanel offsetR;
-    private javax.swing.JTextField reorderLevelField;
+    private javax.swing.JTextField quantityField;
     private javax.swing.JButton saveNewButton;
-    private javax.swing.JTextField unitPriceField;
     // End of variables declaration//GEN-END:variables
 }

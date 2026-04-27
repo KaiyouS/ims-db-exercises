@@ -13,8 +13,18 @@ import javax.swing.table.TableCellRenderer;
  */
 public class TableActionCellRender extends JPanel implements TableCellRenderer {
     private final PanelAction panelAction;
+    private final boolean showEdit;
+    private final boolean showDelete;
+    private final boolean showView;
 
     public TableActionCellRender() {
+        this(true, true, true);
+    }
+    
+    public TableActionCellRender(boolean showEdit, boolean showDelete, boolean showView) {
+        this.showEdit = showEdit;
+        this.showDelete = showDelete;
+        this.showView = showView;
         panelAction = new PanelAction();
         setLayout(new java.awt.BorderLayout());
         add(panelAction, java.awt.BorderLayout.CENTER);
@@ -33,6 +43,11 @@ public class TableActionCellRender extends JPanel implements TableCellRenderer {
         }
 
         setBorder(new EmptyBorder(0, 0, 0, 0));
+        
+        panelAction.showEditButton(showEdit);
+        panelAction.showDeleteButton(showDelete);
+        panelAction.showViewButton(showView);
+        
         return this;
     }
 

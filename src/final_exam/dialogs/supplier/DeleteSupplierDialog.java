@@ -2,24 +2,25 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JDialog.java to edit this template
  */
-package prefinals_exercise3.dialogs.transaction;
+package final_exam.dialogs.supplier;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 
-import prefinals_exercise3.SQLConfig;
+import final_exam.utils.SQLConfig;
+
 /**
  *
  * @author Kaiyou
  */
-public class DeleteTransactionDialog extends javax.swing.JDialog {
+public class DeleteSupplierDialog extends javax.swing.JDialog {
     private int id;
 
-    public DeleteTransactionDialog(java.awt.Frame parent, boolean modal, int id) {
+    public DeleteSupplierDialog(java.awt.Frame parent, boolean modal, int id) {
         super(parent, modal);
         this.id = id;
         initComponents();
@@ -56,7 +57,7 @@ public class DeleteTransactionDialog extends javax.swing.JDialog {
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 36)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(250, 63, 25));
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel1.setText("TRANSACTION");
+        jLabel1.setText("SUPPLIER");
         jLabel1.setMaximumSize(new java.awt.Dimension(410, 48));
         jLabel1.setMinimumSize(new java.awt.Dimension(410, 48));
         jLabel1.setPreferredSize(new java.awt.Dimension(410, 48));
@@ -150,70 +151,13 @@ public class DeleteTransactionDialog extends javax.swing.JDialog {
     }//GEN-LAST:event_cancelButtonActionPerformed
 
     private void confirmDeleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_confirmDeleteButtonActionPerformed
-        String selectTransactionQuery = "SELECT item_id, quantity, transaction_type FROM Transactions WHERE transaction_id = ?";
-        String selectItemQuery = "SELECT quantity_on_hand FROM Items where item_id = ?";
-        String deleteTransactionQuery = "DELETE FROM Transactions WHERE transaction_id = ?";
-        String updateItemQuantityQuery = "UPDATE Items SET quantity_on_hand = ? WHERE item_id = ?";
-
-        try (Connection con = getConnection()) {
-            con.setAutoCommit(false); // Start transaction
-
-            int itemId = 0;
-            int transactionQuantity = 0;
-            String transactionType = "";
-
-            try (PreparedStatement selectStmt = con.prepareStatement(selectTransactionQuery)) {
-                selectStmt.setInt(1, id);
-                ResultSet rs = selectStmt.executeQuery();
-                if (rs.next()) {
-                    itemId = rs.getInt("item_id");
-                    transactionQuantity = rs.getInt("quantity");
-                    transactionType = rs.getString("transaction_type");
-                } else {
-                    JOptionPane.showMessageDialog(this, "Transaction not found.", "Error", JOptionPane.ERROR_MESSAGE);
-                    con.rollback();
-                    return;
-                }
-            }
-            
-            int itemQuantity = 0;
-            try (PreparedStatement selectStmt = con.prepareStatement(selectItemQuery)) {
-                selectStmt.setInt(1, itemId);
-                ResultSet rs = selectStmt.executeQuery();
-                if (rs.next()) {
-                    itemQuantity = rs.getInt("quantity_on_hand");
-                } else {
-                    JOptionPane.showMessageDialog(this, "Item not found.", "Error", JOptionPane.ERROR_MESSAGE);
-                    con.rollback();
-                    return;
-                }
-            }
-            int newQuantity = itemQuantity;
-            if ("Stock in".equalsIgnoreCase(transactionType)) {
-                newQuantity -= transactionQuantity;
-            } else if ("Stock out".equalsIgnoreCase(transactionType)) {
-                newQuantity += transactionQuantity;
-            }
-
-            if (newQuantity < 0) {
-                JOptionPane.showMessageDialog(this, "Deletion would result to a negative stock value.", "Error", JOptionPane.ERROR_MESSAGE);
-                con.rollback();
-                return;
-            }
-
-            try (PreparedStatement updateItemStmt = con.prepareStatement(updateItemQuantityQuery)) {
-                updateItemStmt.setInt(1, newQuantity);
-                updateItemStmt.setInt(2, itemId);
-                updateItemStmt.executeUpdate();
-            }
-
-            try (PreparedStatement deleteStmt = con.prepareStatement(deleteTransactionQuery)) {
-                deleteStmt.setInt(1, id);
-                deleteStmt.executeUpdate();
-            }
-
-            con.commit();
-            JOptionPane.showMessageDialog(this, "Transaction deleted successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
+        String deleteQuery = "DELETE FROM Suppliers WHERE supplier_id = ?";
+    
+        try (Connection con = getConnection();
+             PreparedStatement deleteStmt = con.prepareStatement(deleteQuery)) {
+            deleteStmt.setInt(1, id);
+            deleteStmt.executeUpdate();
+            JOptionPane.showMessageDialog(this, "Supplier deleted successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
             dispose();
         } catch (Exception e) {
             showError(e);
@@ -251,26 +195,14 @@ public class DeleteTransactionDialog extends javax.swing.JDialog {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(DeleteTransactionDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(DeleteSupplierDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(DeleteTransactionDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(DeleteSupplierDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(DeleteTransactionDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(DeleteSupplierDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(DeleteTransactionDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(DeleteSupplierDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
         //</editor-fold>
         //</editor-fold>
         //</editor-fold>
@@ -279,7 +211,7 @@ public class DeleteTransactionDialog extends javax.swing.JDialog {
         /* Create and display the dialog */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                DeleteTransactionDialog dialog = new DeleteTransactionDialog(new javax.swing.JFrame(), true, 1);
+                DeleteSupplierDialog dialog = new DeleteSupplierDialog(new javax.swing.JFrame(), true, 1);
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
                     public void windowClosing(java.awt.event.WindowEvent e) {

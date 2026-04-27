@@ -2,8 +2,10 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-package prefinals_exercise3;
+package final_exam;
 
+import final_exam.utils.SQLConfig;
+import final_exam.utils.GradientPanel;
 import table.cell.AlternatingRowColorRenderer;
 import table.cell.TableActionCellEditor;
 import table.cell.TableActionCellRender;
@@ -14,22 +16,22 @@ import com.formdev.flatlaf.FlatClientProperties;
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.themes.FlatMacDarkLaf;
 
-import prefinals_exercise3.dialogs.category.DeleteCategoryDialog;
-import prefinals_exercise3.dialogs.category.EditCategoryDialog;
-import prefinals_exercise3.dialogs.category.SaveCategoryDialog;
-import prefinals_exercise3.dialogs.category.ViewCategoryDialog;
-import prefinals_exercise3.dialogs.item.DeleteItemDialog;
-import prefinals_exercise3.dialogs.item.EditItemDialog;
-import prefinals_exercise3.dialogs.item.SaveItemDialog;
-import prefinals_exercise3.dialogs.item.ViewItemDialog;
-import prefinals_exercise3.dialogs.supplier.DeleteSupplierDialog;
-import prefinals_exercise3.dialogs.supplier.EditSupplierDialog;
-import prefinals_exercise3.dialogs.supplier.SaveSupplierDialog;
-import prefinals_exercise3.dialogs.supplier.ViewSupplierDialog;
-import prefinals_exercise3.dialogs.transaction.DeleteTransactionDialog;
-import prefinals_exercise3.dialogs.transaction.EditTransactionDialog;
-import prefinals_exercise3.dialogs.transaction.SaveTransactionDialog;
-import prefinals_exercise3.dialogs.transaction.ViewTransactionDialog;
+import final_exam.dialogs.category.DeleteCategoryDialog;
+import final_exam.dialogs.category.EditCategoryDialog;
+import final_exam.dialogs.category.SaveCategoryDialog;
+import final_exam.dialogs.category.ViewCategoryDialog;
+import final_exam.dialogs.item.DeleteItemDialog;
+import final_exam.dialogs.item.EditItemDialog;
+import final_exam.dialogs.item.SaveItemDialog;
+import final_exam.dialogs.item.ViewItemDialog;
+import final_exam.dialogs.supplier.DeleteSupplierDialog;
+import final_exam.dialogs.supplier.EditSupplierDialog;
+import final_exam.dialogs.supplier.SaveSupplierDialog;
+import final_exam.dialogs.supplier.ViewSupplierDialog;
+import final_exam.dialogs.transaction.DeleteTransactionDialog;
+import final_exam.dialogs.transaction.EditTransactionDialog;
+import final_exam.dialogs.transaction.SaveTransactionDialog;
+import final_exam.dialogs.transaction.ViewTransactionDialog;
 
 import java.awt.CardLayout;
 import java.awt.Color;
@@ -61,37 +63,42 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
-
-
-
+import final_exam.dialogs.purchase.SavePurchaseDialog;
+import final_exam.dialogs.purchase.ViewPurchaseDialog;
+import javax.swing.DefaultComboBoxModel;
 /**
  *
  * @author Kaiyou
  */
-public class MyForm extends javax.swing.JFrame {
+public class MainForm extends javax.swing.JFrame {
     SQLConfig sqlConfig = new SQLConfig();
     private static final String DB_URL = "jdbc:mysql://localhost:3306/finals";
     private static final String DB_USER = "root";
     private static final String DB_PASSWORD = "1234";
     /**
-     * Creates new form MyForm
+     * Creates new form MainForm
      */
     
     private JButton[] buttons;
     private JButton selectedButton;
     
-    public MyForm() {
+    public MainForm() {
         sqlConfig.setDbConfig(DB_URL, DB_USER, DB_PASSWORD);
         setLookAndFeel();
         initComponents();
         configureButtons();
         CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
-//        cardLayout.show(cardPanel, "loginPanel");
-        cardLayout.show(cardPanel, "mainPanel");
+        cardLayout.show(cardPanel, "loginPanel");
+//        cardLayout.show(cardPanel, "mainPanel");
+        loadCategories();
+        loadSuppliers();
         loadCategoriesTable();
         loadSuppliersTable();
-        loadItemsTable();
+        cmbCategories.setSelectedIndex(0);
+        loadItemsTable((String) cmbCategories.getSelectedItem());
         loadTransactionsTable();
+        cmbSuppliers.setSelectedIndex(0);
+        loadPurchasesTable((String) cmbSuppliers.getSelectedItem());
     }    
     
     // ---------------------------------------------------------------------------------------------------------------------------------------
@@ -168,8 +175,6 @@ public class MyForm extends javax.swing.JFrame {
         DeleteCategoryDialog deleteDialog = new DeleteCategoryDialog(this, true, id);
         deleteDialog.setVisible(true);
         loadCategoriesTable();
-        loadItemsTable();
-        loadTransactionsTable();    
     }
     
     private void showViewCategoryDialog(int row) {
@@ -201,7 +206,7 @@ public class MyForm extends javax.swing.JFrame {
                 });
             }
 
-            suppliersTable.getColumn("Actions").setCellRenderer(new TableActionCellRender());
+            suppliersTable.getColumn("Actions").setCellRenderer(new TableActionCellRender(true, false, true));
             suppliersTable.getColumn("Actions").setCellEditor(new TableActionCellEditor(new TableActionEvent() {
                 @Override
                 public void onEdit(int row) {
@@ -217,7 +222,7 @@ public class MyForm extends javax.swing.JFrame {
                 public void onView(int row) {
                     showViewSupplierDialog(row);
                 }
-            }));
+            }, true, false, true));
             setColumnWidths(suppliersTable, 0, 100);
             setColumnWidths(suppliersTable, 2, 300);
             setColumnWidths(suppliersTable, 3, 250);
@@ -270,7 +275,7 @@ public class MyForm extends javax.swing.JFrame {
     // ---------------------------------------------------------------------------------------------------------------------------------------
     // ITEMS SECTION
     
-    private void loadItemsTable() {
+    private void loadItemsTable(String categoryFilter) {
         try (Connection con = getConnection();
              Statement stmt = con.createStatement()) {
             
@@ -278,6 +283,10 @@ public class MyForm extends javax.swing.JFrame {
             String query = "SELECT i.item_id, i.item_name, i.description, c.category_name, i.unit_price, i.quantity_on_hand, i.reorder_level " +
                        "FROM Items i " +
                        "LEFT JOIN Categories c ON i.category_id = c.category_id";
+            
+            if (categoryFilter != null && !categoryFilter.equals("All Categories")) {
+                query += " WHERE c.category_name = '" + categoryFilter + "'";
+            }
             ResultSet rs = stmt.executeQuery(query);
             DefaultTableModel tableModel = new DefaultTableModel(new String[]{"ID", "Item Name", "Description", "Category", "Unit Price", "Stock", "Reorder", "Actions"}, 0);
             itemsTable.setModel(tableModel);
@@ -313,11 +322,11 @@ public class MyForm extends javax.swing.JFrame {
                 }
             }));
             setColumnWidths(itemsTable, 0, 75);
-            setColumnWidths(itemsTable, 1, 150);
-            setColumnWidths(itemsTable, 3, 120);
-            setColumnWidths(itemsTable, 4, 120);
-            setColumnWidths(itemsTable, 5, 120);
-            setColumnWidths(itemsTable, 6, 120);
+            setColumnWidths(itemsTable, 1, 200);
+            setColumnWidths(itemsTable, 3, 150);
+            setColumnWidths(itemsTable, 4, 100);
+            setColumnWidths(itemsTable, 5, 100);
+            setColumnWidths(itemsTable, 6, 100);
             setColumnWidths(itemsTable, 7, 250);
             
             customizeTableHeader(itemsTable);
@@ -335,7 +344,8 @@ public class MyForm extends javax.swing.JFrame {
     private void showSaveItemDialog() {
         SaveItemDialog addDialog = new SaveItemDialog(this, true);
         addDialog.setVisible(true);
-        loadItemsTable();
+        cmbCategories.setSelectedIndex(0);
+        loadItemsTable((String) cmbCategories.getSelectedItem());
     }
     
     private void showEditItemDialog(int row) {
@@ -349,7 +359,8 @@ public class MyForm extends javax.swing.JFrame {
                 (int) model.getValueAt(row, 5),
                 (int) model.getValueAt(row, 6));
         editDialog.setVisible(true);
-        loadItemsTable();
+        cmbCategories.setSelectedIndex(0);
+        loadItemsTable((String) cmbCategories.getSelectedItem());
     }
     
     private void showDeleteItemDialog(int row) {
@@ -358,8 +369,8 @@ public class MyForm extends javax.swing.JFrame {
         
         DeleteItemDialog deleteDialog = new DeleteItemDialog(this, true, id);
         deleteDialog.setVisible(true);
-        loadItemsTable();
-        loadTransactionsTable();
+        cmbCategories.setSelectedIndex(0);
+        loadItemsTable((String) cmbCategories.getSelectedItem());
     }
     
     private void showViewItemDialog(int row) {
@@ -385,8 +396,8 @@ public class MyForm extends javax.swing.JFrame {
                        "FROM Transactions t " +
                        "LEFT JOIN Items i ON t.item_id = i.item_id";
             ResultSet rs = stmt.executeQuery(query);
-//            DefaultTableModel tableModel = new DefaultTableModel(new String[]{"ID", "Item", "Date", "Quantity", "Type", "Notes", "Actions"}, 0);
-            DefaultTableModel tableModel = new DefaultTableModel(new String[]{"ID", "Item", "Date", "Quantity", "Type", "Notes"}, 0);
+            DefaultTableModel tableModel = new DefaultTableModel(new String[]{"ID", "Item", "Date", "Quantity", "Type", "Notes", "Actions"}, 0);
+//            DefaultTableModel tableModel = new DefaultTableModel(new String[]{"ID", "Item", "Date", "Quantity", "Type", "Notes"}, 0);
             transactionsTable.setModel(tableModel);
             while (rs.next()) {
                 int quantity = rs.getInt("quantity");
@@ -407,34 +418,35 @@ public class MyForm extends javax.swing.JFrame {
                         quantityDisplay,
                         rs.getString("transaction_type"),
                         rs.getString("notes")
-//                        ,"Actions"
+                        ,"Actions"
                 });
             }
 
-// DEPRECATED!
-//            transactionsTable.getColumn("Actions").setCellRenderer(new TableActionCellRender());
-//            transactionsTable.getColumn("Actions").setCellEditor(new TableActionCellEditor(new TableActionEvent() {
-//                @Override
-//                public void onEdit(int row) {
-//                    showEditTransactionDialog(row);
-//                }
-//
-//                @Override
-//                public void onDelete(int row) {
-//                    showDeleteTransactionDialog(row);
-//                }
-//
-//                @Override
-//                public void onView(int row) {
-//                    showViewTransactionDialog(row);
-//                }
-//            }));
+// DEPRECATED! not
+            transactionsTable.getColumn("Actions").setCellRenderer(new TableActionCellRender(false, false, true));
+            transactionsTable.getColumn("Actions").setCellEditor(new TableActionCellEditor(new TableActionEvent() {
+                @Override
+                public void onEdit(int row) {
+                    // showEditTransactionDialog(row);
+                }
+
+                @Override
+                public void onDelete(int row) {
+                    // showDeleteTransactionDialog(row);
+                }
+
+                @Override
+                public void onView(int row) {
+                    showViewTransactionDialog(row);
+                }
+            }, false, false, true));
 
             setColumnWidths(transactionsTable, 0, 100);
             setColumnWidths(transactionsTable, 1, 200);
-            setColumnWidths(transactionsTable, 2, 200);
+            setColumnWidths(transactionsTable, 2, 225);
             setColumnWidths(transactionsTable, 3, 120);
             setColumnWidths(transactionsTable, 4, 120);
+            setColumnWidths(transactionsTable, 6, 250); // 93
             customizeTableHeader(transactionsTable);
             transactionsTable.setDefaultRenderer(Object.class, new AlternatingRowColorRenderer());
             
@@ -451,7 +463,6 @@ public class MyForm extends javax.swing.JFrame {
         SaveTransactionDialog addDialog = new SaveTransactionDialog(this, true);
         addDialog.setVisible(true);
         loadTransactionsTable();
-        loadItemsTable();
     }
     
     private void showEditTransactionDialog(int row) {
@@ -465,7 +476,6 @@ public class MyForm extends javax.swing.JFrame {
         EditTransactionDialog editDialog = new EditTransactionDialog(this, true, id, itemName, transactionType, quantity, notes);
         editDialog.setVisible(true);
         loadTransactionsTable();
-        loadItemsTable();
     }
     
     private void showDeleteTransactionDialog(int row) {
@@ -474,7 +484,6 @@ public class MyForm extends javax.swing.JFrame {
         
         DeleteTransactionDialog deleteDialog = new DeleteTransactionDialog(this, true, id);
         deleteDialog.setVisible(true);
-        loadTransactionsTable();
     }
     
     private void showViewTransactionDialog(int row) {
@@ -486,9 +495,92 @@ public class MyForm extends javax.swing.JFrame {
     }
 
     // ---------------------------------------------------------------------------------------------------------------------------------------
+    // PURCHASES SECTION
+    private void loadPurchasesTable(String supplierFilter) {
+        try (Connection con = getConnection();
+            Statement stmt = con.createStatement()) {
+            
+            applyCustomStyles(purchasesTable, ptPane, ptScroll);
+            String query = "SELECT po.purchase_order_id, po.order_date, s.supplier_name, po.total_amount, COUNT(poi.item_id) AS number_of_items " +
+                       "FROM PurchaseOrders po " +
+                       "JOIN Suppliers s ON po.supplier_id = s.supplier_id " +
+                       "JOIN PurchaseOrderItems poi ON po.purchase_order_id = poi.purchase_order_id";
+        
+            if (supplierFilter != null && !supplierFilter.equals("All Suppliers")) {
+                query += " WHERE s.supplier_name = '" + supplierFilter + "'";
+            }
+            
+            query += " GROUP BY po.purchase_order_id, po.order_date, s.supplier_name, po.total_amount";
+            
+            ResultSet rs = stmt.executeQuery(query);
+            DefaultTableModel tableModel = new DefaultTableModel(new String[]{"ID", "Date", "Supplier", "Number of Items", "Total Amount", "Actions"}, 0);
+            purchasesTable.setModel(tableModel);
 
+            while (rs.next()) {
+                tableModel.addRow(new Object[]{
+                        rs.getInt("purchase_order_id"),
+                        rs.getString("order_date"),
+                        rs.getString("supplier_name"),
+                        rs.getInt("number_of_items"),
+                        rs.getDouble("total_amount"),
+                        "Actions"
+                });
+            }
+            
+            purchasesTable.getColumn("Actions").setCellRenderer(new TableActionCellRender(false, false, true));
+            purchasesTable.getColumn("Actions").setCellEditor(new TableActionCellEditor(new TableActionEvent() {
+                @Override
+                public void onEdit(int row) {
+                }
+
+                @Override
+                public void onDelete(int row) {
+                }
+
+                @Override
+                public void onView(int row) {
+                    showViewPurchaseDialog(row);
+                }
+            }, false, false, true));
+
+
+            setColumnWidths(purchasesTable, 0, 100);
+            setColumnWidths(purchasesTable, 1, 225);
+            // setColumnWidths(purchasesTable, 2, 200);
+            setColumnWidths(purchasesTable, 3, 200);
+            setColumnWidths(purchasesTable, 4, 150);
+            setColumnWidths(purchasesTable, 5, 250);
+            customizeTableHeader(purchasesTable);
+            purchasesTable.setDefaultRenderer(Object.class, new AlternatingRowColorRenderer());
+            
+            purchasesTable.setRowSelectionAllowed(false);
+            purchasesTable.setColumnSelectionAllowed(false);
+            purchasesTable.setCellSelectionEnabled(false);
+            purchasesTable.getTableHeader().setReorderingAllowed(false);
+        } catch (Exception e) {
+            showError(e);
+        }
+    }
+    
+    private void showSavePurchaseDialog() {
+        SavePurchaseDialog addDialog = new SavePurchaseDialog(this, true);
+        addDialog.setVisible(true);
+        cmbSuppliers.setSelectedIndex(0);
+        loadPurchasesTable((String) cmbSuppliers.getSelectedItem());
+    }
+    
+    private void showViewPurchaseDialog(int row) {
+        DefaultTableModel model = (DefaultTableModel) purchasesTable.getModel();
+        int id = Integer.parseInt(model.getValueAt(row, 0).toString());
+
+        ViewPurchaseDialog viewDialog = new ViewPurchaseDialog(this, true, id);
+        viewDialog.setVisible(true);
+    }
+    
+    // ---------------------------------------------------------------------------------------------------------------------------------------
+    
     private void configureButtons() {
-        buttons = new JButton[]{btnCategories, btnSuppliers, btnItems, btnTransactions};
+        buttons = new JButton[]{btnCategories, btnSuppliers, btnItems, btnTransactions, btnPurchases};
 
         for (JButton button : buttons) {
             button.setBackground(new Color(0, 0, 0, 0));
@@ -541,7 +633,7 @@ public class MyForm extends javax.swing.JFrame {
             @Override
             public void mouseEntered(MouseEvent e) {
                 if (button != selectedButton) {
-                    button.setBackground(new Color(0, 0, 52));
+                    button.setBackground(new Color(0, 0, 0, 75));
                     button.setForeground(new Color(255,204,0));
                 }
             }
@@ -562,7 +654,7 @@ public class MyForm extends javax.swing.JFrame {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     for (JButton btn : buttons) {
-                        btn.setBackground(null);
+                        btn.setBackground(new Color(0,0,0,0));
                         btn.setForeground(Color.white);
                     }
                     button.setBackground(Color.white);
@@ -669,9 +761,12 @@ public class MyForm extends javax.swing.JFrame {
         btnItems = new javax.swing.JButton();
         btnTransactions = new javax.swing.JButton();
         btnLogOut = new javax.swing.JButton();
+        btnPurchases = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         nameDisplay = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
+        jLabel8 = new javax.swing.JLabel();
         mainScreen = new javax.swing.JPanel();
         categoriesPanel = new javax.swing.JPanel();
         ctContainer = new javax.swing.JPanel();
@@ -697,6 +792,9 @@ public class MyForm extends javax.swing.JFrame {
         title2 = new javax.swing.JLabel();
         buttonContainer2 = new javax.swing.JPanel();
         itemsAddButton = new javax.swing.JButton();
+        jLabel14 = new javax.swing.JLabel();
+        cmbCategories = new javax.swing.JComboBox<>();
+        showAllItemsButton = new javax.swing.JButton();
         itPane = new javax.swing.JPanel();
         itScroll = new javax.swing.JScrollPane();
         itemsTable = new javax.swing.JTable();
@@ -708,13 +806,27 @@ public class MyForm extends javax.swing.JFrame {
         ttPane = new javax.swing.JPanel();
         ttScroll = new javax.swing.JScrollPane();
         transactionsTable = new javax.swing.JTable();
+        purchasesPanel = new javax.swing.JPanel();
+        ptContainer = new javax.swing.JPanel();
+        ptNorth = new javax.swing.JPanel();
+        title4 = new javax.swing.JLabel();
+        buttonContainer4 = new javax.swing.JPanel();
+        purchasesAddButton = new javax.swing.JButton();
+        jLabel15 = new javax.swing.JLabel();
+        cmbSuppliers = new javax.swing.JComboBox<>();
+        showAllPurchasesButton = new javax.swing.JButton();
+        ptPane = new javax.swing.JPanel();
+        ptScroll = new javax.swing.JScrollPane();
+        purchasesTable = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("Inventory Management System DB - [Kaiyou Serra] Together, We Make It Happen!");
+        setTitle("IMS-DB - [Kaiyou Serra]");
+        setMinimumSize(new java.awt.Dimension(1760, 990));
 
         cardPanel.setBackground(new java.awt.Color(242, 242, 242));
         cardPanel.setLayout(new java.awt.CardLayout());
 
+        //loginPanel = new GradientPanel(new Color(104, 14, 81), new Color(53, 0, 85));
         loginPanel.setBackground(new java.awt.Color(0, 0, 102));
         loginPanel.setLayout(new java.awt.GridBagLayout());
 
@@ -782,6 +894,11 @@ public class MyForm extends javax.swing.JFrame {
                 lpLoginActionPerformed(evt);
             }
         });
+        lpLogin.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                lpLoginKeyPressed(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 5;
@@ -791,6 +908,7 @@ public class MyForm extends javax.swing.JFrame {
         gridBagConstraints.insets = new java.awt.Insets(25, 0, 0, 0);
         jPanel2.add(lpLogin, gridBagConstraints);
 
+        lpRegister.setBackground(new Color(0,0,0,0));
         lpRegister.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         lpRegister.setForeground(new java.awt.Color(0, 153, 204));
         lpRegister.setText("No Account? Register Now!");
@@ -812,6 +930,7 @@ public class MyForm extends javax.swing.JFrame {
 
         lpPasswordField.setBackground(new java.awt.Color(255, 255, 255));
         lpPasswordField.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        lpPasswordField.setNextFocusableComponent(lpLogin);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 4;
@@ -828,6 +947,7 @@ public class MyForm extends javax.swing.JFrame {
 
         cardPanel.add(loginPanel, "loginPanel");
 
+        //registerPanel = new GradientPanel(new Color(0, 0, 102), new Color(200, 0, 52));
         registerPanel.setBackground(new java.awt.Color(0, 0, 102));
         registerPanel.setLayout(new java.awt.GridBagLayout());
 
@@ -1013,6 +1133,7 @@ public class MyForm extends javax.swing.JFrame {
         mainPanel.setPreferredSize(new java.awt.Dimension(1760, 990));
         mainPanel.setLayout(new java.awt.BorderLayout());
 
+        mainMenu = new GradientPanel(new Color(0, 0, 102), new Color(200, 0, 52));
         mainMenu.setBackground(new java.awt.Color(0, 0, 102));
         mainMenu.setLayout(new java.awt.GridBagLayout());
 
@@ -1050,7 +1171,7 @@ public class MyForm extends javax.swing.JFrame {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 18;
+        gridBagConstraints.gridy = 17;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.ipadx = 132;
         gridBagConstraints.ipady = 30;
@@ -1070,7 +1191,7 @@ public class MyForm extends javax.swing.JFrame {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 19;
+        gridBagConstraints.gridy = 18;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.ipadx = 132;
         gridBagConstraints.ipady = 30;
@@ -1092,7 +1213,7 @@ public class MyForm extends javax.swing.JFrame {
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 20;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.ipadx = 132;
+        gridBagConstraints.ipadx = 120;
         gridBagConstraints.ipady = 30;
         mainMenu.add(btnTransactions, gridBagConstraints);
 
@@ -1115,6 +1236,26 @@ public class MyForm extends javax.swing.JFrame {
         gridBagConstraints.insets = new java.awt.Insets(17, 37, 100, 37);
         mainMenu.add(btnLogOut, gridBagConstraints);
 
+        btnPurchases.setBackground(new Color(0, 0, 0, 0));
+        btnPurchases.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        btnPurchases.setForeground(new java.awt.Color(255, 255, 255));
+        btnPurchases.setText("PURCHASE ORDERS");
+        btnPurchases.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 55, 1, 1));
+        btnPurchases.setFocusPainted(false);
+        btnPurchases.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        btnPurchases.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPurchasesActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 19;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.ipadx = 132;
+        gridBagConstraints.ipady = 30;
+        mainMenu.add(btnPurchases, gridBagConstraints);
+
         jLabel1.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(255, 255, 255));
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -1123,7 +1264,7 @@ public class MyForm extends javax.swing.JFrame {
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 21;
         gridBagConstraints.ipadx = 132;
-        gridBagConstraints.insets = new java.awt.Insets(335, 37, 7, 37);
+        gridBagConstraints.insets = new java.awt.Insets(250, 37, 7, 37);
         mainMenu.add(jLabel1, gridBagConstraints);
 
         nameDisplay.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
@@ -1137,16 +1278,38 @@ public class MyForm extends javax.swing.JFrame {
         gridBagConstraints.insets = new java.awt.Insets(7, 37, 17, 37);
         mainMenu.add(nameDisplay, gridBagConstraints);
 
-        jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 36)); // NOI18N
-        jLabel3.setForeground(new java.awt.Color(73, 128, 182));
-        jLabel3.setText("<html>INVENTORY<br>MANAGEMENT<br>SYSTEM DATABASE<br>-------------------------</html>");
+        jLabel3.setFont(new java.awt.Font("Segoe UI Semibold", 1, 36)); // NOI18N
+        jLabel3.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel3.setText("INVENTORY");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 13;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.ipadx = 32;
+        gridBagConstraints.insets = new java.awt.Insets(50, 25, 2, 25);
+        mainMenu.add(jLabel3, gridBagConstraints);
+
+        jLabel7.setFont(new java.awt.Font("Segoe UI Semibold", 1, 36)); // NOI18N
+        jLabel7.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel7.setText("MANAGEMENT");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 14;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.ipadx = 32;
+        gridBagConstraints.insets = new java.awt.Insets(0, 25, 2, 25);
+        mainMenu.add(jLabel7, gridBagConstraints);
+
+        jLabel8.setFont(new java.awt.Font("Segoe UI Semibold", 1, 36)); // NOI18N
+        jLabel8.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel8.setText("SYSTEM DATABASE");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 15;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.ipadx = 32;
-        gridBagConstraints.insets = new java.awt.Insets(55, 25, 10, 25);
-        mainMenu.add(jLabel3, gridBagConstraints);
+        gridBagConstraints.insets = new java.awt.Insets(0, 25, 50, 25);
+        mainMenu.add(jLabel8, gridBagConstraints);
 
         mainPanel.add(mainMenu, java.awt.BorderLayout.WEST);
 
@@ -1348,6 +1511,35 @@ public class MyForm extends javax.swing.JFrame {
         });
         buttonContainer2.add(itemsAddButton);
 
+        jLabel14.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel14.setForeground(new java.awt.Color(158, 19, 158));
+        jLabel14.setText("       Filter:");
+        buttonContainer2.add(jLabel14);
+
+        cmbCategories.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        cmbCategories.setMaximumSize(new java.awt.Dimension(320, 32));
+        cmbCategories.setMinimumSize(new java.awt.Dimension(320, 32));
+        cmbCategories.setPreferredSize(new java.awt.Dimension(320, 32));
+        cmbCategories.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cmbCategoriesActionPerformed(evt);
+            }
+        });
+        buttonContainer2.add(cmbCategories);
+
+        showAllItemsButton.setBackground(new java.awt.Color(158, 19, 158));
+        showAllItemsButton.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        showAllItemsButton.setForeground(new java.awt.Color(255, 255, 255));
+        showAllItemsButton.setText("Show All");
+        showAllItemsButton.setBorderPainted(false);
+        showAllItemsButton.setMargin(new java.awt.Insets(2, 25, 3, 25));
+        showAllItemsButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                showAllItemsButtonActionPerformed(evt);
+            }
+        });
+        buttonContainer2.add(showAllItemsButton);
+
         itNorth.add(buttonContainer2, java.awt.BorderLayout.SOUTH);
 
         itContainer.add(itNorth, java.awt.BorderLayout.NORTH);
@@ -1458,6 +1650,115 @@ public class MyForm extends javax.swing.JFrame {
 
         mainScreen.add(transactionsPanel, "transactionsPanel");
 
+        purchasesPanel.setBackground(new java.awt.Color(204, 255, 255));
+        purchasesPanel.setLayout(new java.awt.BorderLayout());
+
+        ptContainer.setBorder(javax.swing.BorderFactory.createEmptyBorder(32, 32, 32, 32));
+        ptContainer.setLayout(new java.awt.BorderLayout());
+
+        ptNorth.setBackground(new Color(0, 0, 0, 0));
+        ptNorth.setLayout(new java.awt.BorderLayout());
+
+        title4.setFont(new java.awt.Font("Segoe UI", 1, 48)); // NOI18N
+        title4.setForeground(new java.awt.Color(51, 51, 51));
+        title4.setText("PURCHASE ORDERS");
+        title4.setBorder(javax.swing.BorderFactory.createEmptyBorder(15, 0, 1, 0));
+        title4.setRequestFocusEnabled(false);
+        title4.setVerifyInputWhenFocusTarget(false);
+        ptNorth.add(title4, java.awt.BorderLayout.NORTH);
+
+        buttonContainer4.setBackground(new Color(0, 0, 0, 0));
+        buttonContainer4.setBorder(javax.swing.BorderFactory.createEmptyBorder(25, 0, 0, 0));
+        buttonContainer4.setPreferredSize(new java.awt.Dimension(140, 67));
+        buttonContainer4.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT));
+
+        purchasesAddButton.setBackground(new java.awt.Color(72, 176, 44));
+        purchasesAddButton.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        purchasesAddButton.setForeground(new java.awt.Color(255, 255, 255));
+        purchasesAddButton.setText("Add New");
+        purchasesAddButton.setBorderPainted(false);
+        purchasesAddButton.setMargin(new java.awt.Insets(2, 25, 3, 25));
+        purchasesAddButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                purchasesAddButtonActionPerformed(evt);
+            }
+        });
+        buttonContainer4.add(purchasesAddButton);
+
+        jLabel15.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel15.setForeground(new java.awt.Color(158, 19, 158));
+        jLabel15.setText("       Filter:");
+        buttonContainer4.add(jLabel15);
+
+        cmbSuppliers.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        cmbSuppliers.setMaximumSize(new java.awt.Dimension(320, 32));
+        cmbSuppliers.setMinimumSize(new java.awt.Dimension(320, 32));
+        cmbSuppliers.setPreferredSize(new java.awt.Dimension(320, 32));
+        cmbSuppliers.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cmbSuppliersActionPerformed(evt);
+            }
+        });
+        buttonContainer4.add(cmbSuppliers);
+
+        showAllPurchasesButton.setBackground(new java.awt.Color(158, 19, 158));
+        showAllPurchasesButton.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        showAllPurchasesButton.setForeground(new java.awt.Color(255, 255, 255));
+        showAllPurchasesButton.setText("Show All");
+        showAllPurchasesButton.setBorderPainted(false);
+        showAllPurchasesButton.setMargin(new java.awt.Insets(2, 25, 3, 25));
+        showAllPurchasesButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                showAllPurchasesButtonActionPerformed(evt);
+            }
+        });
+        buttonContainer4.add(showAllPurchasesButton);
+
+        ptNorth.add(buttonContainer4, java.awt.BorderLayout.SOUTH);
+
+        ptContainer.add(ptNorth, java.awt.BorderLayout.NORTH);
+
+        ptPane.setLayout(new java.awt.BorderLayout());
+
+        ptScroll.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 32, 32, 32));
+
+        purchasesTable.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        purchasesTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Header"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        purchasesTable.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
+        purchasesTable.setName(""); // NOI18N
+        purchasesTable.setRowSelectionAllowed(false);
+        purchasesTable.getTableHeader().setReorderingAllowed(false);
+        ptScroll.setViewportView(purchasesTable);
+        purchasesTable.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_INTERVAL_SELECTION);
+        if (purchasesTable.getColumnModel().getColumnCount() > 0) {
+            purchasesTable.getColumnModel().getColumn(0).setMinWidth(400);
+            purchasesTable.getColumnModel().getColumn(0).setPreferredWidth(400);
+            purchasesTable.getColumnModel().getColumn(0).setMaxWidth(400);
+        }
+
+        ptPane.add(ptScroll, java.awt.BorderLayout.CENTER);
+
+        ptContainer.add(ptPane, java.awt.BorderLayout.CENTER);
+
+        purchasesPanel.add(ptContainer, java.awt.BorderLayout.CENTER);
+
+        mainScreen.add(purchasesPanel, "purchasesPanel");
+
         mainPanel.add(mainScreen, java.awt.BorderLayout.CENTER);
 
         cardPanel.add(mainPanel, "mainPanel");
@@ -1550,7 +1851,39 @@ public class MyForm extends javax.swing.JFrame {
             showError(e);
         }
     }//GEN-LAST:event_rpRegisterActionPerformed
+    
+    private void loadCategories() {
+        try (Connection con = getConnection();
+             Statement stmt = con.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT category_name FROM Categories")) {
 
+            DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
+            model.addElement("All Categories");
+            while (rs.next()) {
+                model.addElement(rs.getString("category_name"));
+            }
+            cmbCategories.setModel(model);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void loadSuppliers() {
+        try (Connection con = getConnection();
+             Statement stmt = con.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT supplier_name FROM Suppliers")) {
+
+            DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
+            model.addElement("All Suppliers");
+            while (rs.next()) {
+                model.addElement(rs.getString("supplier_name"));
+            }
+            cmbSuppliers.setModel(model);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
     private void rpEmailFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rpEmailFieldActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_rpEmailFieldActionPerformed
@@ -1561,24 +1894,29 @@ public class MyForm extends javax.swing.JFrame {
 
     private void btnCategoriesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCategoriesActionPerformed
         // TODO add your handling code here:
+        loadCategoriesTable();
         CardLayout cardLayout = (CardLayout) mainScreen.getLayout();
         cardLayout.show(mainScreen, "categoriesPanel");
     }//GEN-LAST:event_btnCategoriesActionPerformed
 
     private void btnSuppliersActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSuppliersActionPerformed
         // TODO add your handling code here:
+        loadSuppliersTable();
         CardLayout cardLayout = (CardLayout) mainScreen.getLayout();
         cardLayout.show(mainScreen, "suppliersPanel");
     }//GEN-LAST:event_btnSuppliersActionPerformed
 
     private void btnItemsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnItemsActionPerformed
         // TODO add your handling code here:
+        cmbCategories.setSelectedIndex(0);
+        loadItemsTable((String) cmbCategories.getSelectedItem());
         CardLayout cardLayout = (CardLayout) mainScreen.getLayout();
         cardLayout.show(mainScreen, "itemsPanel");
     }//GEN-LAST:event_btnItemsActionPerformed
 
     private void btnTransactionsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTransactionsActionPerformed
         // TODO add your handling code here:
+        loadTransactionsTable();
         CardLayout cardLayout = (CardLayout) mainScreen.getLayout();
         cardLayout.show(mainScreen, "transactionsPanel");
     }//GEN-LAST:event_btnTransactionsActionPerformed
@@ -1603,16 +1941,57 @@ public class MyForm extends javax.swing.JFrame {
         // TODO add your handling code here:
         showSaveItemDialog();
     }//GEN-LAST:event_itemsAddButtonActionPerformed
+
+    private void btnPurchasesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPurchasesActionPerformed
+        // TODO add your handling code here:
+        cmbSuppliers.setSelectedIndex(0);
+        loadPurchasesTable((String) cmbSuppliers.getSelectedItem());
+        loadSuppliers();
+        cmbSuppliers.setSelectedIndex(0);
+        CardLayout cardLayout = (CardLayout) mainScreen.getLayout();
+        cardLayout.show(mainScreen, "purchasesPanel");
+    }//GEN-LAST:event_btnPurchasesActionPerformed
+
+    private void purchasesAddButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_purchasesAddButtonActionPerformed
+        // TODO add your handling code here:
+        showSavePurchaseDialog();
+    }//GEN-LAST:event_purchasesAddButtonActionPerformed
+
+    private void lpLoginKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_lpLoginKeyPressed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_lpLoginKeyPressed
+
+    private void cmbCategoriesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbCategoriesActionPerformed
+        // TODO add your handling code here:
+        loadItemsTable((String) cmbCategories.getSelectedItem());
+    }//GEN-LAST:event_cmbCategoriesActionPerformed
+
+    private void showAllItemsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showAllItemsButtonActionPerformed
+        // TODO add your handling code here:
+        cmbCategories.setSelectedIndex(0);
+        loadItemsTable((String) cmbCategories.getSelectedItem());
+    }//GEN-LAST:event_showAllItemsButtonActionPerformed
+
+    private void cmbSuppliersActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbSuppliersActionPerformed
+        // TODO add your handling code here:
+        loadPurchasesTable((String) cmbSuppliers.getSelectedItem());
+    }//GEN-LAST:event_cmbSuppliersActionPerformed
+
+    private void showAllPurchasesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showAllPurchasesButtonActionPerformed
+        // TODO add your handling code here:
+        cmbSuppliers.setSelectedIndex(0);
+        loadPurchasesTable((String) cmbSuppliers.getSelectedItem());
+    }//GEN-LAST:event_showAllPurchasesButtonActionPerformed
     
     /**
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        FlatLaf.registerCustomDefaultsSource("prefinals_exercise3");
+        FlatLaf.registerCustomDefaultsSource("final_exam");
         FlatMacDarkLaf.setup();
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new MyForm().setVisible(true);
+                new MainForm().setVisible(true);
             }
         });
     }
@@ -1621,16 +2000,20 @@ public class MyForm extends javax.swing.JFrame {
     private javax.swing.JButton btnCategories;
     private javax.swing.JButton btnItems;
     private javax.swing.JButton btnLogOut;
+    private javax.swing.JButton btnPurchases;
     private javax.swing.JButton btnSuppliers;
     private javax.swing.JButton btnTransactions;
     private javax.swing.JPanel buttonContainer;
     private javax.swing.JPanel buttonContainer1;
     private javax.swing.JPanel buttonContainer2;
     private javax.swing.JPanel buttonContainer3;
+    private javax.swing.JPanel buttonContainer4;
     private javax.swing.JPanel cardPanel;
     private javax.swing.JButton categoriesAddButton;
     private javax.swing.JPanel categoriesPanel;
     private javax.swing.JTable categoriesTable;
+    private javax.swing.JComboBox<String> cmbCategories;
+    private javax.swing.JComboBox<String> cmbSuppliers;
     private javax.swing.JPanel ctContainer;
     private javax.swing.JPanel ctNorth;
     private javax.swing.JPanel ctPane;
@@ -1646,11 +2029,15 @@ public class MyForm extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel14;
+    private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
@@ -1663,6 +2050,13 @@ public class MyForm extends javax.swing.JFrame {
     private javax.swing.JPanel mainPanel;
     private javax.swing.JPanel mainScreen;
     private javax.swing.JLabel nameDisplay;
+    private javax.swing.JPanel ptContainer;
+    private javax.swing.JPanel ptNorth;
+    private javax.swing.JPanel ptPane;
+    private javax.swing.JScrollPane ptScroll;
+    private javax.swing.JButton purchasesAddButton;
+    private javax.swing.JPanel purchasesPanel;
+    private javax.swing.JTable purchasesTable;
     private javax.swing.JPanel registerPanel;
     private javax.swing.JTextField rpEmailField;
     private javax.swing.JTextField rpFirstNameField;
@@ -1670,6 +2064,8 @@ public class MyForm extends javax.swing.JFrame {
     private javax.swing.JButton rpLogin;
     private javax.swing.JPasswordField rpPasswordField;
     private javax.swing.JButton rpRegister;
+    private javax.swing.JButton showAllItemsButton;
+    private javax.swing.JButton showAllPurchasesButton;
     private javax.swing.JPanel stContainer;
     private javax.swing.JPanel stNorth;
     private javax.swing.JPanel stPane;
@@ -1681,6 +2077,7 @@ public class MyForm extends javax.swing.JFrame {
     private javax.swing.JLabel title1;
     private javax.swing.JLabel title2;
     private javax.swing.JLabel title3;
+    private javax.swing.JLabel title4;
     private javax.swing.JPanel transactionsPanel;
     private javax.swing.JTable transactionsTable;
     private javax.swing.JPanel ttContainer;

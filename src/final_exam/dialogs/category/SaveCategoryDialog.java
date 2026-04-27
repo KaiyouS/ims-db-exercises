@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JDialog.java to edit this template
  */
-package prefinals_exercise3.dialogs.category;
+package final_exam.dialogs.category;
 
 import java.awt.Color;
 import java.sql.Connection;
@@ -11,21 +11,19 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
 
-import prefinals_exercise3.SQLConfig;
+import final_exam.utils.SQLConfig;
 
 /**
- * Edit dialog for editing categories.
+ * Save dialog for adding new categories.
  */
-public class EditCategoryDialog extends javax.swing.JDialog {
-    private int id;
+public class SaveCategoryDialog extends javax.swing.JDialog {
+
     /**
-     * Creates new form EditCategoryDialog
+     * Creates new form SaveCategoryDialog
      */
-    public EditCategoryDialog(java.awt.Frame parent, boolean modal, int id, String categoryName) {
+    public SaveCategoryDialog(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
-        this.id = id;
         initComponents();
-        categoryNameField.setText(categoryName);
     }
 
     /**
@@ -38,13 +36,18 @@ public class EditCategoryDialog extends javax.swing.JDialog {
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
 
+        jLabel3 = new javax.swing.JLabel();
         Container = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
         categoryNameField = new javax.swing.JTextField();
-        cancelButton = new javax.swing.JButton();
-        saveChangesButton = new javax.swing.JButton();
+        cancelButton1 = new javax.swing.JButton();
+        saveNewButton = new javax.swing.JButton();
         offsetR = new javax.swing.JPanel();
+
+        jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel3.setForeground(new java.awt.Color(0, 153, 153));
+        jLabel3.setText("Category Name:");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setResizable(false);
@@ -56,26 +59,26 @@ public class EditCategoryDialog extends javax.swing.JDialog {
         Container.setPreferredSize(new java.awt.Dimension(410, 370));
         Container.setLayout(new java.awt.GridBagLayout());
 
-        jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 36)); // NOI18N
-        jLabel1.setForeground(new java.awt.Color(0, 153, 153));
-        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel1.setText("CATEGORY");
-        jLabel1.setMaximumSize(new java.awt.Dimension(410, 48));
-        jLabel1.setMinimumSize(new java.awt.Dimension(410, 48));
-        jLabel1.setPreferredSize(new java.awt.Dimension(410, 48));
+        jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 36)); // NOI18N
+        jLabel4.setForeground(new java.awt.Color(0, 153, 153));
+        jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel4.setText("CATEGORY");
+        jLabel4.setMaximumSize(new java.awt.Dimension(410, 48));
+        jLabel4.setMinimumSize(new java.awt.Dimension(410, 48));
+        jLabel4.setPreferredSize(new java.awt.Dimension(410, 48));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.insets = new java.awt.Insets(50, 0, 50, 0);
-        Container.add(jLabel1, gridBagConstraints);
+        Container.add(jLabel4, gridBagConstraints);
 
-        jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        jLabel2.setForeground(new java.awt.Color(0, 153, 153));
-        jLabel2.setText("New Category Name:");
+        jLabel5.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel5.setForeground(new java.awt.Color(0, 153, 153));
+        jLabel5.setText("Category Name:");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 50, 0, 0);
-        Container.add(jLabel2, gridBagConstraints);
+        Container.add(jLabel5, gridBagConstraints);
 
         categoryNameField.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         categoryNameField.setForeground(new java.awt.Color(51, 51, 51));
@@ -93,17 +96,17 @@ public class EditCategoryDialog extends javax.swing.JDialog {
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
         Container.add(categoryNameField, gridBagConstraints);
 
-        cancelButton.setBackground(new java.awt.Color(230, 230, 230));
-        cancelButton.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        cancelButton.setForeground(new java.awt.Color(51, 51, 51));
-        cancelButton.setText("Cancel");
-        cancelButton.setBorderPainted(false);
-        cancelButton.setMaximumSize(new java.awt.Dimension(160, 32));
-        cancelButton.setMinimumSize(new java.awt.Dimension(160, 32));
-        cancelButton.setPreferredSize(new java.awt.Dimension(160, 32));
-        cancelButton.addActionListener(new java.awt.event.ActionListener() {
+        cancelButton1.setBackground(new java.awt.Color(230, 230, 230));
+        cancelButton1.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        cancelButton1.setForeground(new java.awt.Color(51, 51, 51));
+        cancelButton1.setText("Cancel");
+        cancelButton1.setBorderPainted(false);
+        cancelButton1.setMaximumSize(new java.awt.Dimension(160, 32));
+        cancelButton1.setMinimumSize(new java.awt.Dimension(160, 32));
+        cancelButton1.setPreferredSize(new java.awt.Dimension(160, 32));
+        cancelButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cancelButtonActionPerformed(evt);
+                cancelButton1ActionPerformed(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -111,19 +114,19 @@ public class EditCategoryDialog extends javax.swing.JDialog {
         gridBagConstraints.gridy = 4;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(80, 42, 80, 5);
-        Container.add(cancelButton, gridBagConstraints);
+        Container.add(cancelButton1, gridBagConstraints);
 
-        saveChangesButton.setBackground(new java.awt.Color(0, 153, 153));
-        saveChangesButton.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        saveChangesButton.setForeground(new java.awt.Color(255, 255, 255));
-        saveChangesButton.setText("Save Changes");
-        saveChangesButton.setBorderPainted(false);
-        saveChangesButton.setMaximumSize(new java.awt.Dimension(160, 32));
-        saveChangesButton.setMinimumSize(new java.awt.Dimension(160, 32));
-        saveChangesButton.setPreferredSize(new java.awt.Dimension(160, 32));
-        saveChangesButton.addActionListener(new java.awt.event.ActionListener() {
+        saveNewButton.setBackground(new java.awt.Color(0, 153, 153));
+        saveNewButton.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        saveNewButton.setForeground(new java.awt.Color(255, 255, 255));
+        saveNewButton.setText("Save New");
+        saveNewButton.setBorderPainted(false);
+        saveNewButton.setMaximumSize(new java.awt.Dimension(160, 32));
+        saveNewButton.setMinimumSize(new java.awt.Dimension(160, 32));
+        saveNewButton.setPreferredSize(new java.awt.Dimension(160, 32));
+        saveNewButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                saveChangesButtonActionPerformed(evt);
+                saveNewButtonActionPerformed(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -131,9 +134,7 @@ public class EditCategoryDialog extends javax.swing.JDialog {
         gridBagConstraints.gridy = 4;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
         gridBagConstraints.insets = new java.awt.Insets(80, 5, 80, 42);
-        Container.add(saveChangesButton, gridBagConstraints);
-
-        offsetR.setBackground(new Color(0,0,0,0));
+        Container.add(saveNewButton, gridBagConstraints);
 
         javax.swing.GroupLayout offsetRLayout = new javax.swing.GroupLayout(offsetR);
         offsetR.setLayout(offsetRLayout);
@@ -162,28 +163,27 @@ public class EditCategoryDialog extends javax.swing.JDialog {
         // TODO add your handling code here:
     }//GEN-LAST:event_categoryNameFieldActionPerformed
 
-    private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
+    private void cancelButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButton1ActionPerformed
         dispose();
-    }//GEN-LAST:event_cancelButtonActionPerformed
+    }//GEN-LAST:event_cancelButton1ActionPerformed
 
-    private void saveChangesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveChangesButtonActionPerformed
-        String newCategoryName = categoryNameField.getText();
+    private void saveNewButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveNewButtonActionPerformed
+        String categoryName = categoryNameField.getText();
         
-        if (newCategoryName.isEmpty()) {
+        if (categoryName.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Please fill out all the necessary fields.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
         
         try (Connection con = getConnection();
-             PreparedStatement pstmt = con.prepareStatement("UPDATE Categories SET category_name = ? WHERE category_id = ?")) {
-            pstmt.setString(1, newCategoryName);
-            pstmt.setInt(2, id);
+            PreparedStatement pstmt = con.prepareStatement("INSERT INTO Categories (category_name) VALUES (?)")) {
+            pstmt.setString(1, categoryName);
             pstmt.executeUpdate();
             dispose();
         } catch (SQLException | ClassNotFoundException e) {
             showError(e);
         }
-    }//GEN-LAST:event_saveChangesButtonActionPerformed
+    }//GEN-LAST:event_saveNewButtonActionPerformed
 
     private Connection getConnection() throws SQLException, ClassNotFoundException {
         SQLConfig sql = new SQLConfig();
@@ -216,20 +216,20 @@ public class EditCategoryDialog extends javax.swing.JDialog {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(EditCategoryDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(SaveCategoryDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(EditCategoryDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(SaveCategoryDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(EditCategoryDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(SaveCategoryDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(EditCategoryDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(SaveCategoryDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
         /* Create and display the dialog */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                EditCategoryDialog dialog = new EditCategoryDialog(new javax.swing.JFrame(), true, 1, "Sample Category");
+                SaveCategoryDialog dialog = new SaveCategoryDialog(new javax.swing.JFrame(), true);
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
                     public void windowClosing(java.awt.event.WindowEvent e) {
@@ -243,11 +243,12 @@ public class EditCategoryDialog extends javax.swing.JDialog {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel Container;
-    private javax.swing.JButton cancelButton;
+    private javax.swing.JButton cancelButton1;
     private javax.swing.JTextField categoryNameField;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel offsetR;
-    private javax.swing.JButton saveChangesButton;
+    private javax.swing.JButton saveNewButton;
     // End of variables declaration//GEN-END:variables
 }

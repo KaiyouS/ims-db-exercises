@@ -12,10 +12,20 @@ import javax.swing.table.TableCellRenderer;
 public class TableActionCellEditor extends DefaultCellEditor {
     private final PanelAction panelAction;
     private final TableActionEvent event;
+    private final boolean showEdit;
+    private final boolean showDelete;
+    private final boolean showView;
 
     public TableActionCellEditor(TableActionEvent event) {
+        this(event, true, true, true);
+    }
+
+    public TableActionCellEditor(TableActionEvent event, boolean showEdit, boolean showDelete, boolean showView) {
         super(new JCheckBox());
         this.event = event;
+        this.showEdit = showEdit;
+        this.showDelete = showDelete;
+        this.showView = showView;
         panelAction = new PanelAction();
     }
 
@@ -40,6 +50,11 @@ public class TableActionCellEditor extends DefaultCellEditor {
         panelAction.getEditButton().addActionListener(e -> event.onEdit(row));
         panelAction.getDeleteButton().addActionListener(e -> event.onDelete(row));
         panelAction.getViewButton().addActionListener(e -> event.onView(row));
+
+        // Customize buttons visibility based on flags
+        panelAction.showEditButton(showEdit);
+        panelAction.showDeleteButton(showDelete);
+        panelAction.showViewButton(showView);
 
         return panelAction;
     }

@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JDialog.java to edit this template
  */
-package prefinals_exercise3.dialogs.category;
+package final_exam.dialogs.item;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -11,18 +11,16 @@ import java.sql.SQLException;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
-import prefinals_exercise3.SQLConfig;
+import final_exam.utils.SQLConfig;
 
 /**
  *
  * @author Kaiyou
  */
-public class DeleteCategoryDialog extends javax.swing.JDialog {
+public class DeleteItemDialog extends javax.swing.JDialog {
     private int id;
-    /**
-     * Creates new form DeleteCategory
-     */
-    public DeleteCategoryDialog(java.awt.Frame parent, boolean modal, int id) {
+
+    public DeleteItemDialog(java.awt.Frame parent, boolean modal, int id) {
         super(parent, modal);
         this.id = id;
         initComponents();
@@ -59,7 +57,7 @@ public class DeleteCategoryDialog extends javax.swing.JDialog {
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 36)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(250, 63, 25));
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel1.setText("CATEGORY");
+        jLabel1.setText("ITEM");
         jLabel1.setMaximumSize(new java.awt.Dimension(410, 48));
         jLabel1.setMinimumSize(new java.awt.Dimension(410, 48));
         jLabel1.setPreferredSize(new java.awt.Dimension(410, 48));
@@ -153,29 +151,22 @@ public class DeleteCategoryDialog extends javax.swing.JDialog {
     }//GEN-LAST:event_cancelButtonActionPerformed
 
     private void confirmDeleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_confirmDeleteButtonActionPerformed
-        String deleteTransactionsQuery = "DELETE FROM Transactions WHERE item_id IN (SELECT item_id FROM Items WHERE category_id = ?)";
-        String deleteItemsQuery = "DELETE FROM Items WHERE category_id = ?";
-        String deleteCategoryQuery = "DELETE FROM Categories WHERE category_id = ?";
-    
+        String deleteTransactionsQuery = "DELETE FROM Transactions WHERE item_id = ?";
+        String deleteItemQuery = "DELETE FROM Items WHERE item_id = ?";
+
         try (Connection con = getConnection()) {
             // Delete related transactions
-            try (PreparedStatement deleteTransactionsStmt = con.prepareStatement(deleteTransactionsQuery)) {
-                deleteTransactionsStmt.setInt(1, id);
-                deleteTransactionsStmt.executeUpdate();
+//            try (PreparedStatement deleteTransactionsStmt = con.prepareStatement(deleteTransactionsQuery)) {
+//                deleteTransactionsStmt.setInt(1, id);
+//                deleteTransactionsStmt.executeUpdate();
+//            }
+
+            // Delete the item
+            try (PreparedStatement deleteItemStmt = con.prepareStatement(deleteItemQuery)) {
+                deleteItemStmt.setInt(1, id);
+                deleteItemStmt.executeUpdate();
             }
-    
-            // Delete related items
-            try (PreparedStatement deleteItemsStmt = con.prepareStatement(deleteItemsQuery)) {
-                deleteItemsStmt.setInt(1, id);
-                deleteItemsStmt.executeUpdate();
-            }
-    
-            // Delete the category
-            try (PreparedStatement deleteCategoryStmt = con.prepareStatement(deleteCategoryQuery)) {
-                deleteCategoryStmt.setInt(1, id);
-                deleteCategoryStmt.executeUpdate();
-            }
-            JOptionPane.showMessageDialog(this, "Category deleted successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Item deleted successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
             dispose();
         } catch (Exception e) {
             showError(e);
@@ -213,21 +204,27 @@ public class DeleteCategoryDialog extends javax.swing.JDialog {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(DeleteCategoryDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(DeleteItemDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(DeleteCategoryDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(DeleteItemDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(DeleteCategoryDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(DeleteItemDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(DeleteCategoryDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(DeleteItemDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
         //</editor-fold>
         //</editor-fold>
 
         /* Create and display the dialog */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                DeleteCategoryDialog dialog = new DeleteCategoryDialog(new javax.swing.JFrame(), true, 1);
+                DeleteItemDialog dialog = new DeleteItemDialog(new javax.swing.JFrame(), true, 1);
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
                     public void windowClosing(java.awt.event.WindowEvent e) {

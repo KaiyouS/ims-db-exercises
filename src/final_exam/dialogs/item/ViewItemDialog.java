@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JDialog.java to edit this template
  */
-package prefinals_exercise3.dialogs.category;
+package final_exam.dialogs.item;
 
 import java.awt.Font;
 import java.sql.Connection;
@@ -12,14 +12,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import javax.swing.JOptionPane;
+import javax.swing.JOptionPane; 
+import jdk.jfr.Description;
+import final_exam.utils.SQLConfig;
 
-import prefinals_exercise3.SQLConfig;
-
-public class ViewCategoryDialog extends javax.swing.JDialog {
+public class ViewItemDialog extends javax.swing.JDialog {
     private int id;
 
-    public ViewCategoryDialog(java.awt.Frame parent, boolean modal, int id) {
+    public ViewItemDialog(java.awt.Frame parent, boolean modal, int id) {
         super(parent, modal);
         this.id = id;
         initComponents();
@@ -42,19 +42,22 @@ public class ViewCategoryDialog extends javax.swing.JDialog {
         doneButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setMaximumSize(new java.awt.Dimension(410, 600));
+        setMinimumSize(new java.awt.Dimension(410, 600));
+        setPreferredSize(new java.awt.Dimension(410, 500));
         setResizable(false);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         Container.setBackground(new java.awt.Color(255, 255, 255));
-        Container.setMaximumSize(new java.awt.Dimension(410, 370));
-        Container.setMinimumSize(new java.awt.Dimension(410, 370));
-        Container.setPreferredSize(new java.awt.Dimension(410, 370));
+        Container.setMaximumSize(new java.awt.Dimension(410, 600));
+        Container.setMinimumSize(new java.awt.Dimension(410, 600));
+        Container.setPreferredSize(new java.awt.Dimension(410, 600));
         Container.setLayout(new java.awt.GridBagLayout());
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 36)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(0, 153, 153));
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel1.setText("CATEGORY");
+        jLabel1.setText("ITEM");
         jLabel1.setMaximumSize(new java.awt.Dimension(410, 48));
         jLabel1.setMinimumSize(new java.awt.Dimension(410, 48));
         jLabel1.setPreferredSize(new java.awt.Dimension(410, 48));
@@ -90,7 +93,7 @@ public class ViewCategoryDialog extends javax.swing.JDialog {
         gridBagConstraints.insets = new java.awt.Insets(80, 42, 80, 42);
         Container.add(doneButton, gridBagConstraints);
 
-        getContentPane().add(Container, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 410, 370));
+        getContentPane().add(Container, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 410, 600));
 
         pack();
         setLocationRelativeTo(null);
@@ -102,7 +105,10 @@ public class ViewCategoryDialog extends javax.swing.JDialog {
 
     public void loadDataAndDisplay() {
         // EDIT THIS FOR DIFFERENT TABLES
-        String query = "SELECT * FROM Categories WHERE category_id = ?";
+        String query = "SELECT i.item_id, i.item_name, i.description, c.category_name, i.unit_price, i.quantity_on_hand, i.reorder_level " +
+                       "FROM Items i " +
+                       "LEFT JOIN Categories c ON i.category_id = c.category_id " +
+                       "WHERE i.item_id = ?";
         
         Map<String, String> dataMap = getDataFromDatabase(query, id);
         
@@ -121,10 +127,14 @@ public class ViewCategoryDialog extends javax.swing.JDialog {
             pstmt.setInt(1, id);
             ResultSet rs = pstmt.executeQuery();
             
-            while (rs.next()) {
-                // EDIT THIS ALSO
-                result.put("ID", String.valueOf(rs.getInt("category_id")));
-                result.put("Category Name", rs.getString("category_name"));
+            if (rs.next()) {
+                result.put("ID", String.valueOf(rs.getInt("item_id")));
+                result.put("Item Name", rs.getString("item_name"));
+                result.put("Description", rs.getString("description"));
+                result.put("Category", rs.getString("category_name"));
+                result.put("Unit Price", String.valueOf(rs.getDouble("unit_price")));
+                result.put("Quantity on Hand", String.valueOf(rs.getInt("quantity_on_hand")));
+                result.put("Reorder Level", String.valueOf(rs.getInt("reorder_level")));
             }
             
         } catch (Exception e) {
@@ -146,6 +156,22 @@ public class ViewCategoryDialog extends javax.swing.JDialog {
         for (Map.Entry<String, String> entry : items.entrySet()) {
             String key = entry.getKey();
             String value = entry.getValue();
+            if (key.equals("Description")) {
+                StringBuilder wrappedDescription = new StringBuilder();
+                int index = 0;
+                int length = 35;
+                while (index < value.length()) {
+                    int endIndex = Math.min(index + length, value.length());
+                    wrappedDescription.append(value, index, endIndex).append("\n    "); // Indent after newline
+                    index += length;
+                }
+
+                // Format the description with wrapping
+                String formatted = String.format("%n%-" + (maxKeyLength + 2) + "s:%n    %s%n%n", key, wrappedDescription.toString().trim());
+                formatted = formatted.replace(" ", "&nbsp;");
+                alignedText.append(formatted);
+                continue;
+            }
             String formatted = String.format("%-" + (maxKeyLength + 2) + "s: %s%n", key, value);
             formatted = formatted.replace(" ", "&nbsp;");
             alignedText.append(formatted);
@@ -185,21 +211,27 @@ public class ViewCategoryDialog extends javax.swing.JDialog {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(ViewCategoryDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(ViewItemDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(ViewCategoryDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(ViewItemDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(ViewCategoryDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(ViewItemDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(ViewCategoryDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(ViewItemDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
         //</editor-fold>
         //</editor-fold>
 
         /* Create and display the dialog */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                ViewCategoryDialog dialog = new ViewCategoryDialog(new javax.swing.JFrame(), true, 1);
+                ViewItemDialog dialog = new ViewItemDialog(new javax.swing.JFrame(), true, 1);
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
                     public void windowClosing(java.awt.event.WindowEvent e) {
